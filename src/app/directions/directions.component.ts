@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -13,13 +13,11 @@ import { SubjectsService } from '../services/subjects.service';
   styleUrl: './directions.component.scss',
 })
 export class DirectionsComponent implements OnInit {
+  private subjectsService = inject(SubjectsService);
+  private router = inject(Router);
+
   tables = signal<string[]>([]);
   loading = signal(true);
-
-  constructor(
-    private subjectsService: SubjectsService,
-    private router: Router,
-  ) {}
 
   ngOnInit(): void {
     this.subjectsService.getTables().subscribe({

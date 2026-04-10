@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -42,6 +42,14 @@ interface Status {
   styleUrl: './direction-detail.component.scss',
 })
 export class DirectionDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private subjectsService = inject(SubjectsService);
+  private filesService = inject(FilesService);
+  private teachersService = inject(TeachersService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+
   table = '';
   subjects = signal<Subject[]>([]);
   teachers = signal<Teacher[]>([]);
@@ -55,19 +63,8 @@ export class DirectionDetailComponent implements OnInit {
     { id: 3, name: 'Шаблон' },
   ];
 
-  // Диалог добавления предмета
   showAddDialog = signal(false);
   newSubject = { subject: '', teacherId: null as number | null, statusId: null as number | null };
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private subjectsService: SubjectsService,
-    private filesService: FilesService,
-    private teachersService: TeachersService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-  ) {}
 
   ngOnInit(): void {
     this.table = decodeURIComponent(this.route.snapshot.paramMap.get('table') ?? '');
@@ -101,7 +98,7 @@ export class DirectionDetailComponent implements OnInit {
   }
 
   isExpanded(id: number): boolean {
-    return !!this.expandedRows()[id];
+    return this.expandedRows()[id];
   }
 
   loadFiles(subjectId: number): void {
