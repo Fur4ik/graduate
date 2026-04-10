@@ -14,10 +14,10 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { SubjectsService, Subject } from '../services/subjects.service';
-import { FilesService, SubjectFile } from '../services/files.service';
-import { TeachersService, Teacher } from '../services/teachers.service';
-import { getDirectionEntry } from '../services/directions';
+import { SubjectsService, Subject } from '../../../shared/services/subjects.service';
+import { FilesService, SubjectFile } from '../../../shared/services/files.service';
+import { TeachersService, Teacher } from '../../../shared/services/teachers.service';
+import { getDirectionEntry } from '../../../shared/services/directions';
 
 interface Status {
   id: number;

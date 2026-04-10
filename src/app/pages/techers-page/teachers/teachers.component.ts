@@ -10,8 +10,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { TeachersService, Teacher, TeacherSubject } from '../services/teachers.service';
-import { getDirectionEntry } from '../services/directions';
+import { TeachersService, Teacher, TeacherSubject } from '../../../shared/services/teachers.service';
+import { getDirectionEntry } from '../../../shared/services/directions';
 
 @Component({
   selector: 'app-teachers',

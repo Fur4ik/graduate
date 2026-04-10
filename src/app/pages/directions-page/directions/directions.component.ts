@@ -1,13 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SubjectsService } from '../services/subjects.service';
+import { SubjectsService } from '../../../shared/services/subjects.service';
 import {
-  getDirectionLabel,
   getDirectionEntry,
   BACHELOR_DIRECTIONS,
   MASTER_DIRECTIONS,
-} from '../services/directions';
+} from '../../../shared/services/directions';
 
 @Component({
   selector: 'app-directions',
@@ -36,7 +35,6 @@ export class DirectionsComponent implements OnInit {
     });
   }
 
-  getLabel = getDirectionLabel;
   getEntry = getDirectionEntry;
 
   open(alias: string): void {
