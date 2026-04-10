@@ -43,7 +43,12 @@
         appendTo="body"
       />
     </div>
-    <p-button label="Добавить предмет" icon="pi pi-plus" (onClick)="openAddDialog()" />
+    <div class="toolbar-actions">
+      <a [href]="downloadAllDirectionUrl()" download>
+        <p-button label="Скачать все файлы" icon="pi pi-download" severity="secondary" />
+      </a>
+      <p-button label="Добавить предмет" icon="pi pi-plus" (onClick)="openAddDialog()" />
+    </div>
   </div>
 
   @if (loadingSubjects()) {
@@ -117,13 +122,23 @@
               <div class="files-panel">
                 <div class="files-header">
                   <span>Файлы</span>
-                  <p-button
-                    label="Загрузить файл"
-                    icon="pi pi-upload"
-                    size="small"
-                    severity="secondary"
-                    (onClick)="fileInput.click()"
-                  />
+                  <div class="files-header-actions">
+                    <a [href]="downloadAllSubjectUrl(subject.id)" download>
+                      <p-button
+                        label="Скачать файлы"
+                        icon="pi pi-download"
+                        size="small"
+                        severity="secondary"
+                      />
+                    </a>
+                    <p-button
+                      label="Загрузить файл"
+                      icon="pi pi-upload"
+                      size="small"
+                      severity="secondary"
+                      (onClick)="fileInput.click()"
+                    />
+                  </div>
                   <input
                     #fileInput
                     type="file"

@@ -256,6 +256,14 @@ export class DirectionDetailComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  downloadAllSubjectUrl(subjectId: number): string {
+    return this.filesService.downloadAllSubjectUrl(this.alias, subjectId);
+  }
+
+  downloadAllDirectionUrl(): string {
+    return this.filesService.downloadAllDirectionUrl(this.alias);
+  }
+
   back(): void {
     this.router.navigate(['/']);
   }

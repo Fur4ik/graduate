@@ -90,6 +90,12 @@
   background: #f1f5f9;
 }
 
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .files-header {
   display: flex;
   align-items: center;
@@ -100,6 +106,13 @@
     font-weight: 600;
     font-size: 13px;
     color: #475569;
+  }
+
+  .files-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
   }
 }
 

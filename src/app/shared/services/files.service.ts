@@ -24,6 +24,14 @@ export class FilesService {
     return `${API}/files/${alias}/${subjectId}/${fileId}/download`;
   }
 
+  downloadAllSubjectUrl(alias: string, subjectId: number): string {
+    return `${API}/files/${alias}/subject/${subjectId}/download-all`;
+  }
+
+  downloadAllDirectionUrl(alias: string): string {
+    return `${API}/files/${alias}/download-all`;
+  }
+
   delete(alias: string, subjectId: number, fileId: number): Observable<{ deleted: number }> {
     return this.http.delete<{ deleted: number }>(`${API}/files/${alias}/${subjectId}/${fileId}`);
   }
