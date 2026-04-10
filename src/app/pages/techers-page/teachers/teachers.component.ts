@@ -105,7 +105,7 @@ export class TeachersComponent implements OnInit {
     }
     return Array.from(map.entries()).map(([alias, items]) => {
       const entry = this.directionsService.getEntry(alias);
-      return { direction: entry.direction, profile: entry.profile, items };
+      return { direction: `${entry.code} ${entry.direction}`, profile: entry.profile, items };
     });
   }
 

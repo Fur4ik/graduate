@@ -107,6 +107,28 @@ router.get('/report/:alias', async (req, res) => {
     doc.y = statsY + 60;
     doc.moveDown(0.4);
 
+    // ── Прогресс-бар готовности ──────────────────────────────────────────────
+    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+    const barY = doc.y;
+    const barH = 14;
+    const barRadius = 4;
+
+    // Подпись
+    doc.fontSize(8).fillColor('#64748b').text('ГОТОВНОСТЬ', 48, barY, { continued: true });
+    doc.fillColor('#0f172a').text(`  ${percent}%`, { align: 'left' });
+
+    const labelBottom = doc.y + 4;
+
+    // Фон бара
+    doc.roundedRect(48, labelBottom, W, barH, barRadius).fillColor('#e2e8f0').fill();
+
+    // Заполненная часть
+    const fillW = Math.max(total > 0 ? (done / total) * W : 0, barRadius * 2);
+    const fillColor = percent >= 80 ? '#16a34a' : percent >= 40 ? '#d97706' : '#dc2626';
+    doc.roundedRect(48, labelBottom, fillW, barH, barRadius).fillColor(fillColor).fill();
+
+    doc.y = labelBottom + barH + 12;
+
     // ── Разделитель ──────────────────────────────────────────────────────────
     doc
       .moveTo(48, doc.y)
@@ -132,14 +154,29 @@ router.get('/report/:alias', async (req, res) => {
       .stroke();
     doc.moveDown(0.3);
 
+    const LINE_H = 14; // высота одной строки текста ~9pt
+    const FILE_LINE_H = 10; // высота одной строки файла ~7pt
+    const ROW_PAD = 10; // отступ снизу строки
+    const PAGE_BOTTOM = doc.page.height - 60;
+
     // ── Строки таблицы ───────────────────────────────────────────────────────
     for (const subj of subjects) {
       const files = filesBySubject[subj.id] ?? [];
       const statusLabel = subj.status_name ?? '—';
       const statusColor = STATUS_COLORS[subj.status_id] ?? '#64748b';
 
-      // Перенос страницы если не хватает места
-      if (doc.y > doc.page.height - 100) {
+      // Оцениваем высоту строки заранее
+      const fileColW = COL.status - COL.files - 4;
+      const charsPerFileLine = Math.floor(fileColW / 5.5); // ~5.5pt на символ при 7pt
+      const colSubjectLines = Math.ceil(subj.subject.length / 38) || 1;
+      const colFilesLines = files.reduce(
+        (sum, name) => sum + (Math.ceil((name.length + 2) / charsPerFileLine) || 1),
+        0,
+      );
+      const estimatedH = Math.max(colSubjectLines * LINE_H, colFilesLines * FILE_LINE_H) + ROW_PAD;
+
+      // Переносим страницу до начала рендеринга строки
+      if (doc.y + estimatedH > PAGE_BOTTOM) {
         doc.addPage();
         doc.y = 48;
       }

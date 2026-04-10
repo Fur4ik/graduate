@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
+const tables = require('./tables');
 
 const subjectsRouter = require('./routes/subjects');
 const filesRouter = require('./routes/files');
@@ -22,14 +23,14 @@ app.use('/api', filesRouter);
 app.use('/api', statusesRouter);
 app.use('/api', teachersRouter);
 
-// Проверка подключения к БД при старте
 pool
   .query('SELECT 1')
+  .then(() => tables.init())
   .then(() => {
     console.log('Connected to PostgreSQL');
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
   })
   .catch((err) => {
-    console.error('Failed to connect to PostgreSQL:', err.message);
+    console.error('Failed to start:', err.message);
     process.exit(1);
   });

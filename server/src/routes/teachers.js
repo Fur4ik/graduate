@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { TABLES } = require('../tables');
+const { getTables } = require('../tables');
 
 router.get('/teachers', async (req, res) => {
   try {
@@ -15,7 +15,7 @@ router.get('/teachers', async (req, res) => {
 router.get('/teachers/:id/subjects', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    const parts = TABLES.map(
+    const parts = getTables().map(
       (t) =>
         `SELECT '${t.alias}' AS table_name, s.id, s.subject FROM "${t.name}" s WHERE s.teacher_id = ${id}`,
     );
