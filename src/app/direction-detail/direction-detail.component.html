@@ -1,0 +1,161 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="p-6">
+  <div class="flex items-center gap-3 mb-6">
+    <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="back()" />
+    <h1 class="text-2xl font-bold">{{ table }}</h1>
+  </div>
+
+  <div class="flex justify-end mb-4">
+    <p-button label="Добавить предмет" icon="pi pi-plus" (onClick)="showAddDialog.set(true)" />
+  </div>
+
+  @if (loadingSubjects()) {
+    <div class="flex justify-center mt-10">
+      <p-progressSpinner />
+    </div>
+  } @else {
+    <p-table [value]="subjects()" styleClass="p-datatable-striped" [rowHover]="true">
+      <ng-template #header>
+        <tr>
+          <th style="width: 3rem"></th>
+          <th>#</th>
+          <th>Предмет</th>
+          <th>Преподаватель</th>
+          <th>Статус</th>
+          <th style="width: 6rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-subject>
+        <tr>
+          <td>
+            <p-button
+              [icon]="isExpanded(subject.id) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [text]="true"
+              severity="secondary"
+              (onClick)="toggleRow(subject)"
+            />
+          </td>
+          <td>{{ subject.id }}</td>
+          <td>{{ subject.subject }}</td>
+          <td>
+            @if (subject.teacherName) {
+              <div>{{ subject.teacherName }}</div>
+              @if (subject.teacherEmail) {
+                <div class="text-sm text-gray-400">{{ subject.teacherEmail }}</div>
+              }
+            } @else {
+              <span class="text-gray-400">—</span>
+            }
+          </td>
+          <td>
+            @if (subject.statusName) {
+              <p-tag [value]="subject.statusName" [severity]="getStatusSeverity(subject.statusId)" />
+            }
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              (onClick)="deleteSubject(subject)"
+            />
+          </td>
+        </tr>
+
+        @if (isExpanded(subject.id)) {
+          <tr>
+            <td colspan="6" class="bg-gray-50 p-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-semibold text-sm">Файлы</span>
+                <label class="cursor-pointer">
+                  <p-button label="Загрузить файл" icon="pi pi-upload" size="small" severity="secondary"
+                    (onClick)="fileInput.click()" />
+                  <input #fileInput type="file" class="hidden" (change)="onFileUpload($event, subject.id)" />
+                </label>
+              </div>
+
+              @if (getFiles(subject.id).length === 0) {
+                <p class="text-gray-400 text-sm">Нет файлов</p>
+              } @else {
+                <div class="flex flex-col gap-2">
+                  @for (file of getFiles(subject.id); track file.id) {
+                    <div class="flex items-center justify-between bg-white rounded border p-2">
+                      <div class="flex items-center gap-2">
+                        <i class="pi pi-file text-gray-400"></i>
+                        <span class="text-sm">{{ file.name }}</span>
+                      </div>
+                      <div class="flex gap-2">
+                        <a [href]="downloadUrl(subject.id, file.id)" target="_blank">
+                          <p-button icon="pi pi-download" [text]="true" size="small" severity="secondary" />
+                        </a>
+                        <p-button
+                          icon="pi pi-trash"
+                          [text]="true"
+                          size="small"
+                          severity="danger"
+                          (onClick)="deleteFile(subject.id, file.id)"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr><td colspan="6" class="text-center">Предметы не найдены</td></tr>
+      </ng-template>
+    </p-table>
+  }
+</div>
+
+<!-- Диалог добавления предмета -->
+<p-dialog
+  header="Новый предмет"
+  [visible]="showAddDialog()"
+  (visibleChange)="showAddDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+>
+  <div class="flex flex-col gap-4 pt-2">
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium">Название *</label>
+      <input pInputText [(ngModel)]="newSubject.subject" placeholder="Введите название предмета" />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium">Преподаватель</label>
+      <p-select
+        [options]="teachers()"
+        [(ngModel)]="newSubject.teacherId"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Выберите преподавателя"
+        [showClear]="true"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium">Статус</label>
+      <p-select
+        [options]="statuses"
+        [(ngModel)]="newSubject.statusId"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Выберите статус"
+        [showClear]="true"
+      />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button label="Отмена" severity="secondary" [text]="true" (onClick)="showAddDialog.set(false)" />
+    <p-button label="Добавить" icon="pi pi-check" (onClick)="addSubject()" />
+  </ng-template>
+</p-dialog>

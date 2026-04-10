@@ -6,7 +6,6 @@ const { isValidTable, getFilesTable } = require('../tables');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// GET /api/files/:table/:subjectId — список файлов предмета (без бинарных данных)
 router.get('/files/:table/:subjectId', async (req, res) => {
   const table = req.params.table;
   const subjectId = parseInt(req.params.subjectId);
@@ -15,10 +14,10 @@ router.get('/files/:table/:subjectId', async (req, res) => {
   const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
-      `SELECT "Копия 090304_Поле1" AS "Код", "_Поле1", "FileName", "FileType", "FileTimeStamp", "FileURL"
-       FROM "${filesTable}"
-       WHERE "_Поле1" = $1`,
-      [subjectId]
+      `SELECT id, subject_id, file_name AS name, file_type AS type,
+              file_timestamp AS timestamp, file_url AS url
+       FROM "${filesTable}" WHERE subject_id = $1`,
+      [subjectId],
     );
     res.json(result.rows);
   } catch (err) {
@@ -26,7 +25,6 @@ router.get('/files/:table/:subjectId', async (req, res) => {
   }
 });
 
-// GET /api/files/:table/:subjectId/:fileId/download — скачать файл
 router.get('/files/:table/:subjectId/:fileId/download', async (req, res) => {
   const table = req.params.table;
   const subjectId = parseInt(req.params.subjectId);
@@ -36,44 +34,42 @@ router.get('/files/:table/:subjectId/:fileId/download', async (req, res) => {
   const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
-      `SELECT "FileData", "FileName", "FileType"
-       FROM "${filesTable}"
-       WHERE "Копия 090304_Поле1" = $1 AND "_Поле1" = $2`,
-      [fileId, subjectId]
+      `SELECT file_data, file_name, file_type
+       FROM "${filesTable}" WHERE id = $1 AND subject_id = $2`,
+      [fileId, subjectId],
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'File not found' });
-
     const file = result.rows[0];
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.FileName)}"`);
-    res.setHeader('Content-Type', file.FileType || 'application/octet-stream');
-    res.send(file.FileData);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${encodeURIComponent(file.file_name)}"`,
+    );
+    res.setHeader('Content-Type', file.file_type || 'application/octet-stream');
+    res.send(file.file_data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/files/:table/:subjectId — загрузить файл
 router.post('/files/:table/:subjectId', upload.single('file'), async (req, res) => {
   const table = req.params.table;
   const subjectId = parseInt(req.params.subjectId);
   if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
-  if (!req.file) return res.status(400).json({ error: 'Файл не передан' });
+  if (!req.file) return res.status(400).json({ error: 'File is required' });
 
   const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
-      `INSERT INTO "${filesTable}" ("_Поле1", "FileData", "FileFlags", "FileName", "FileTimeStamp", "FileType")
-       VALUES ($1, $2, $3, $4, NOW(), $5)
-       RETURNING "Копия 090304_Поле1" AS "Код"`,
-      [subjectId, req.file.buffer, 0, req.file.originalname, req.file.mimetype]
+      `INSERT INTO "${filesTable}" (subject_id, file_data, file_flags, file_name, file_timestamp, file_type)
+       VALUES ($1, $2, 0, $3, NOW(), $4) RETURNING id`,
+      [subjectId, req.file.buffer, req.file.originalname, req.file.mimetype],
     );
-    res.status(201).json({ Код: result.rows[0].Код });
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE /api/files/:table/:subjectId/:fileId — удалить файл
 router.delete('/files/:table/:subjectId/:fileId', async (req, res) => {
   const table = req.params.table;
   const subjectId = parseInt(req.params.subjectId);
@@ -83,13 +79,11 @@ router.delete('/files/:table/:subjectId/:fileId', async (req, res) => {
   const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
-      `DELETE FROM "${filesTable}"
-       WHERE "Копия 090304_Поле1" = $1 AND "_Поле1" = $2
-       RETURNING "Копия 090304_Поле1"`,
-      [fileId, subjectId]
+      `DELETE FROM "${filesTable}" WHERE id = $1 AND subject_id = $2 RETURNING id`,
+      [fileId, subjectId],
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'File not found' });
-    res.json({ deleted: result.rows[0]['Копия 090304_Поле1'] });
+    res.json({ deleted: result.rows[0].id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

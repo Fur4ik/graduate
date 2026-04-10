@@ -2,27 +2,18 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// GET /api/teachers
 router.get('/teachers', async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT "Код" AS id, "Преподаватель" AS name, "Почта" AS email
-       FROM "Преподаватели" ORDER BY "Код"`
-    );
+    const result = await pool.query('SELECT * FROM "Преподаватели" ORDER BY id');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET /api/teachers/:id
 router.get('/teachers/:id', async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT "Код" AS id, "Преподаватель" AS name, "Почта" AS email
-       FROM "Преподаватели" WHERE "Код" = $1`,
-      [parseInt(req.params.id)]
-    );
+    const result = await pool.query('SELECT * FROM "Преподаватели" WHERE id = $1', [parseInt(req.params.id)]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     res.json(result.rows[0]);
   } catch (err) {
@@ -30,15 +21,12 @@ router.get('/teachers/:id', async (req, res) => {
   }
 });
 
-// POST /api/teachers
 router.post('/teachers', async (req, res) => {
   const { name, email } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
-
   try {
     const result = await pool.query(
-      `INSERT INTO "Преподаватели" ("Преподаватель", "Почта") VALUES ($1, $2)
-       RETURNING "Код" AS id`,
+      'INSERT INTO "Преподаватели" (name, email) VALUES ($1, $2) RETURNING *',
       [name, email || null]
     );
     res.status(201).json(result.rows[0]);
@@ -47,17 +35,13 @@ router.post('/teachers', async (req, res) => {
   }
 });
 
-// PUT /api/teachers/:id
 router.put('/teachers/:id', async (req, res) => {
   const { name, email } = req.body;
-
   try {
     const result = await pool.query(
       `UPDATE "Преподаватели"
-       SET "Преподаватель" = COALESCE($1, "Преподаватель"),
-           "Почта" = COALESCE($2, "Почта")
-       WHERE "Код" = $3
-       RETURNING "Код" AS id, "Преподаватель" AS name, "Почта" AS email`,
+       SET name = COALESCE($1, name), email = COALESCE($2, email)
+       WHERE id = $3 RETURNING *`,
       [name || null, email || null, parseInt(req.params.id)]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -67,13 +51,9 @@ router.put('/teachers/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/teachers/:id
 router.delete('/teachers/:id', async (req, res) => {
   try {
-    const result = await pool.query(
-      `DELETE FROM "Преподаватели" WHERE "Код" = $1 RETURNING "Код" AS id`,
-      [parseInt(req.params.id)]
-    );
+    const result = await pool.query('DELETE FROM "Преподаватели" WHERE id = $1 RETURNING id', [parseInt(req.params.id)]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     res.json({ deleted: result.rows[0].id });
   } catch (err) {
