@@ -1,10 +1,16 @@
 .directions-page {
   padding: 24px;
 
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
   h1 {
     font-size: 24px;
     font-weight: 700;
-    margin-bottom: 24px;
     color: #0f172a;
   }
 
@@ -60,11 +66,6 @@
   font-weight: 600;
   color: #0f172a;
   line-height: 1.4;
-}
-
-.card-footer {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .spinner-wrap {

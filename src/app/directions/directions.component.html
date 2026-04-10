@@ -4,8 +4,6 @@
   </div>
 } @else {
   <div class="directions-page">
-    <h1>Направления</h1>
-
     @if (bachelor().length > 0) {
       <h2>Бакалавриат</h2>
       <div class="directions-grid">
@@ -14,9 +12,6 @@
             <div class="card-content">
               <span class="card-direction">{{ getEntry(table).direction }}</span>
               <span class="card-profile">{{ getEntry(table).profile }}</span>
-            </div>
-            <div class="card-footer">
-              <p-button label="Открыть" icon="pi pi-arrow-right" (onClick)="open(table)" />
             </div>
           </div>
         }
@@ -31,9 +26,6 @@
             <div class="card-content">
               <span class="card-direction">{{ getEntry(table).direction }}</span>
               <span class="card-profile">{{ getEntry(table).profile }}</span>
-            </div>
-            <div class="card-footer">
-              <p-button label="Открыть" icon="pi pi-arrow-right" (onClick)="open(table)" />
             </div>
           </div>
         }

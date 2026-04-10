@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SubjectsService } from '../services/subjects.service';
 import {
@@ -13,7 +12,7 @@ import {
 @Component({
   selector: 'app-directions',
   standalone: true,
-  imports: [ButtonModule, ProgressSpinnerModule],
+  imports: [ProgressSpinnerModule],
   templateUrl: './directions.component.html',
   styleUrl: './directions.component.scss',
 })

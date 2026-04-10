@@ -1,0 +1,136 @@
+<p-toast />
+<p-confirmDialog [style]="{ width: '420px' }" [dismissableMask]="true" />
+
+<div class="teachers-page">
+  <div class="toolbar">
+    <p-button label="Добавить преподавателя" icon="pi pi-plus" (onClick)="openAddDialog()" />
+  </div>
+
+  @if (loading()) {
+    <div class="spinner-wrap">
+      <p-progressSpinner />
+    </div>
+  } @else {
+    <p-table
+      [value]="teachers()"
+      styleClass="p-datatable-striped"
+      [rowHover]="true"
+      [sortField]="'name'"
+      [sortOrder]="1"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 3rem"></th>
+          <th pSortableColumn="name">ФИО <p-sortIcon field="name" /></th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+          <th style="width: 90px"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-teacher>
+        <tr>
+          <td>
+            <p-button
+              [icon]="isExpanded(teacher.id) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [text]="true"
+              severity="secondary"
+              (onClick)="toggleRow(teacher)"
+            />
+          </td>
+          <td>{{ teacher.name }}</td>
+          <td>
+            @if (teacher.email) {
+              <span class="email">{{ teacher.email }}</span>
+            } @else {
+              <span class="no-value">—</span>
+            }
+          </td>
+          <td>
+            <div class="row-actions">
+              <p-button
+                icon="pi pi-pencil"
+                severity="secondary"
+                [text]="true"
+                (onClick)="openEditDialog(teacher)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                (onClick)="delete(teacher)"
+              />
+            </div>
+          </td>
+        </tr>
+
+        @if (isExpanded(teacher.id)) {
+          <tr>
+            <td colspan="4">
+              <div class="subjects-panel">
+                @if (getSubjects(teacher.id).length === 0) {
+                  <p class="subjects-empty">Нет привязанных предметов</p>
+                } @else {
+                  @for (group of groupByDirection(getSubjects(teacher.id)); track group.profile) {
+                    <div class="direction-group">
+                      <div class="direction-label">
+                        <span class="direction-code">{{ group.direction }}</span>
+                        <span class="direction-profile">{{ group.profile }}</span>
+                      </div>
+                      <ul class="subject-list">
+                        @for (s of group.items; track s.id) {
+                          <li>{{ s.subject }}</li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="4" style="text-align: center; padding: 24px">Преподаватели не найдены</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</div>
+
+<p-dialog
+  [header]="editingId() ? 'Редактировать преподавателя' : 'Новый преподаватель'"
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '440px' }"
+  [dismissableMask]="true"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label>ФИО *</label>
+      <input pInputText [(ngModel)]="dialogTeacher.name" placeholder="Введите ФИО" />
+    </div>
+    <div class="form-field">
+      <label>Email</label>
+      <input pInputText [(ngModel)]="dialogTeacher.email" placeholder="Введите email" />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Отмена"
+        severity="secondary"
+        [text]="true"
+        (onClick)="showDialog.set(false)"
+      />
+      <p-button
+        [label]="editingId() ? 'Сохранить' : 'Добавить'"
+        icon="pi pi-check"
+        (onClick)="save()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
