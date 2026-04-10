@@ -4,7 +4,8 @@ import { DirectionDetailComponent } from './direction-detail/direction-detail.co
 import { TeachersComponent } from './teachers/teachers.component';
 
 export const routes: Routes = [
-  { path: '', component: DirectionsComponent },
-  { path: 'direction/:table', component: DirectionDetailComponent },
+  { path: '', redirectTo: 'direction', pathMatch: 'full' },
+  { path: 'direction', component: DirectionsComponent },
+  { path: 'direction/:alias', component: DirectionDetailComponent },
   { path: 'teachers', component: TeachersComponent },
 ];

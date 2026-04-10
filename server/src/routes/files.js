@@ -2,16 +2,15 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const pool = require('../db');
-const { isValidTable, getFilesTable } = require('../tables');
+const { isValidAlias, getFilesTable } = require('../tables');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.get('/files/:table/:subjectId', async (req, res) => {
-  const table = req.params.table;
+router.get('/files/:alias/:subjectId', async (req, res) => {
+  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
+  const filesTable = getFilesTable(req.params.alias);
 
-  const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
       `SELECT id, subject_id, file_name AS name, file_type AS type
@@ -24,13 +23,12 @@ router.get('/files/:table/:subjectId', async (req, res) => {
   }
 });
 
-router.get('/files/:table/:subjectId/:fileId/download', async (req, res) => {
-  const table = req.params.table;
+router.get('/files/:alias/:subjectId/:fileId/download', async (req, res) => {
+  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
   const fileId = parseInt(req.params.fileId);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
+  const filesTable = getFilesTable(req.params.alias);
 
-  const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
       `SELECT file_data, file_name, file_type
@@ -50,13 +48,12 @@ router.get('/files/:table/:subjectId/:fileId/download', async (req, res) => {
   }
 });
 
-router.post('/files/:table/:subjectId', upload.single('file'), async (req, res) => {
-  const table = req.params.table;
-  const subjectId = parseInt(req.params.subjectId);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
+router.post('/files/:alias/:subjectId', upload.single('file'), async (req, res) => {
+  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
   if (!req.file) return res.status(400).json({ error: 'File is required' });
+  const subjectId = parseInt(req.params.subjectId);
+  const filesTable = getFilesTable(req.params.alias);
 
-  const filesTable = getFilesTable(table);
   try {
     const fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
     const result = await pool.query(
@@ -70,13 +67,12 @@ router.post('/files/:table/:subjectId', upload.single('file'), async (req, res) 
   }
 });
 
-router.delete('/files/:table/:subjectId/:fileId', async (req, res) => {
-  const table = req.params.table;
+router.delete('/files/:alias/:subjectId/:fileId', async (req, res) => {
+  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
   const fileId = parseInt(req.params.fileId);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
+  const filesTable = getFilesTable(req.params.alias);
 
-  const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
       `DELETE FROM "${filesTable}" WHERE id = $1 AND subject_id = $2 RETURNING id`,

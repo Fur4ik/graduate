@@ -22,31 +22,26 @@ export class SubjectsService {
     return this.http.get<string[]>(`${this.api}/tables`);
   }
 
-  getAll(table: string): Observable<Subject[]> {
-    return this.http.get<Subject[]>(`${this.api}/subjects/${encodeURIComponent(table)}`);
+  getAll(alias: string): Observable<Subject[]> {
+    return this.http.get<Subject[]>(`${this.api}/subjects/${alias}`);
   }
 
   create(
-    table: string,
+    alias: string,
     data: { subject: string; teacherId?: number; statusId?: number },
   ): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(
-      `${this.api}/subjects/${encodeURIComponent(table)}`,
-      data,
-    );
+    return this.http.post<{ id: number }>(`${this.api}/subjects/${alias}`, data);
   }
 
   update(
-    table: string,
+    alias: string,
     id: number,
     data: Partial<{ subject: string; teacherId: number; statusId: number }>,
   ): Observable<Subject> {
-    return this.http.put<Subject>(`${this.api}/subjects/${encodeURIComponent(table)}/${id}`, data);
+    return this.http.put<Subject>(`${this.api}/subjects/${alias}/${id}`, data);
   }
 
-  delete(table: string, id: number): Observable<{ deleted: number }> {
-    return this.http.delete<{ deleted: number }>(
-      `${this.api}/subjects/${encodeURIComponent(table)}/${id}`,
-    );
+  delete(alias: string, id: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${this.api}/subjects/${alias}/${id}`);
   }
 }

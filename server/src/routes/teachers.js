@@ -17,7 +17,7 @@ router.get('/teachers/:id/subjects', async (req, res) => {
   try {
     const parts = TABLES.map(
       (t) =>
-        `SELECT '${t.name}' AS table_name, s.id, s.subject FROM "${t.name}" s WHERE s.teacher_id = ${id}`,
+        `SELECT '${t.alias}' AS table_name, s.id, s.subject FROM "${t.name}" s WHERE s.teacher_id = ${id}`,
     );
     const result = await pool.query(parts.join(' UNION ALL ') + ' ORDER BY table_name, id');
     res.json(result.rows);

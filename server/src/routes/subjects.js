@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { TABLES, isValidTable } = require('../tables');
+const { TABLES, isValidAlias, getByAlias } = require('../tables');
 
 router.get('/tables', (req, res) => {
-  res.json(TABLES.map((t) => t.name));
+  res.json(TABLES.map((t) => t.alias));
 });
 
-router.get('/subjects/:table', async (req, res) => {
-  const table = req.params.table;
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
+router.get('/subjects/:alias', async (req, res) => {
+  const entry = getByAlias(req.params.alias);
+  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+  const table = entry.name;
 
   try {
     const hasComment = await pool.query(
@@ -34,10 +35,11 @@ router.get('/subjects/:table', async (req, res) => {
   }
 });
 
-router.get('/subjects/:table/:id', async (req, res) => {
-  const table = req.params.table;
+router.get('/subjects/:alias/:id', async (req, res) => {
+  const entry = getByAlias(req.params.alias);
+  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+  const table = entry.name;
   const id = parseInt(req.params.id);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
 
   try {
     const hasComment = await pool.query(
@@ -63,9 +65,10 @@ router.get('/subjects/:table/:id', async (req, res) => {
   }
 });
 
-router.post('/subjects/:table', async (req, res) => {
-  const table = req.params.table;
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
+router.post('/subjects/:alias', async (req, res) => {
+  const entry = getByAlias(req.params.alias);
+  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+  const table = entry.name;
 
   const { subject, teacherId, statusId } = req.body;
   if (!subject) return res.status(400).json({ error: 'subject is required' });
@@ -82,10 +85,11 @@ router.post('/subjects/:table', async (req, res) => {
   }
 });
 
-router.put('/subjects/:table/:id', async (req, res) => {
-  const table = req.params.table;
+router.put('/subjects/:alias/:id', async (req, res) => {
+  const entry = getByAlias(req.params.alias);
+  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+  const table = entry.name;
   const id = parseInt(req.params.id);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
 
   const { subject, teacherId, statusId } = req.body;
   try {
@@ -104,10 +108,11 @@ router.put('/subjects/:table/:id', async (req, res) => {
   }
 });
 
-router.delete('/subjects/:table/:id', async (req, res) => {
-  const table = req.params.table;
+router.delete('/subjects/:alias/:id', async (req, res) => {
+  const entry = getByAlias(req.params.alias);
+  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+  const table = entry.name;
   const id = parseInt(req.params.id);
-  if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
 
   try {
     const result = await pool.query(`DELETE FROM "${table}" WHERE id = $1 RETURNING id`, [id]);

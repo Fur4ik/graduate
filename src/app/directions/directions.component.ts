@@ -39,7 +39,7 @@ export class DirectionsComponent implements OnInit {
   getLabel = getDirectionLabel;
   getEntry = getDirectionEntry;
 
-  open(table: string): void {
-    this.router.navigate(['/direction', encodeURIComponent(table)]);
+  open(alias: string): void {
+    this.router.navigate(['/direction', alias]);
   }
 }

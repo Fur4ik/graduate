@@ -55,7 +55,7 @@ export class DirectionDetailComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
-  table = '';
+  alias = '';
   getEntry = getDirectionEntry;
   subjects = signal<Subject[]>([]);
   teachers = signal<Teacher[]>([]);
@@ -97,14 +97,14 @@ export class DirectionDetailComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.table = decodeURIComponent(this.route.snapshot.paramMap.get('table') ?? '');
+    this.alias = this.route.snapshot.paramMap.get('alias') ?? '';
     this.loadSubjects();
     this.teachersService.getAll().subscribe({ next: (t) => this.teachers.set(t) });
   }
 
   loadSubjects(): void {
     this.loadingSubjects.set(true);
-    this.subjectsService.getAll(this.table).subscribe({
+    this.subjectsService.getAll(this.alias).subscribe({
       next: (data) => {
         this.subjects.set(data);
         this.loadingSubjects.set(false);
@@ -132,7 +132,7 @@ export class DirectionDetailComponent implements OnInit {
   }
 
   loadFiles(subjectId: number): void {
-    this.filesService.getAll(this.table, subjectId).subscribe({
+    this.filesService.getAll(this.alias, subjectId).subscribe({
       next: (data) => this.files.set({ ...this.files(), [subjectId]: data }),
     });
   }
@@ -142,14 +142,14 @@ export class DirectionDetailComponent implements OnInit {
   }
 
   downloadUrl(subjectId: number, fileId: number): string {
-    return this.filesService.downloadUrl(this.table, subjectId, fileId);
+    return this.filesService.downloadUrl(this.alias, subjectId, fileId);
   }
 
   onFileUpload(event: Event, subjectId: number): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    this.filesService.upload(this.table, subjectId, file).subscribe({
+    this.filesService.upload(this.alias, subjectId, file).subscribe({
       next: () => {
         this.loadFiles(subjectId);
         this.messageService.add({ severity: 'success', summary: 'Файл загружен' });
@@ -168,7 +168,7 @@ export class DirectionDetailComponent implements OnInit {
       acceptButtonProps: { severity: 'danger' },
       rejectButtonProps: { severity: 'secondary', outlined: true },
       accept: () => {
-        this.filesService.delete(this.table, subjectId, fileId).subscribe({
+        this.filesService.delete(this.alias, subjectId, fileId).subscribe({
           next: () => {
             this.loadFiles(subjectId);
             this.messageService.add({ severity: 'success', summary: 'Файл удалён' });
@@ -203,8 +203,8 @@ export class DirectionDetailComponent implements OnInit {
     };
     const id = this.editingId();
     const request$ = id
-      ? this.subjectsService.update(this.table, id, data)
-      : this.subjectsService.create(this.table, data);
+      ? this.subjectsService.update(this.alias, id, data)
+      : this.subjectsService.create(this.alias, data);
 
     request$.subscribe({
       next: () => {
@@ -228,7 +228,7 @@ export class DirectionDetailComponent implements OnInit {
       acceptButtonProps: { severity: 'danger' },
       rejectButtonProps: { severity: 'secondary', outlined: true },
       accept: () => {
-        this.subjectsService.delete(this.table, subject.id).subscribe({
+        this.subjectsService.delete(this.alias, subject.id).subscribe({
           next: () => {
             this.loadSubjects();
             this.messageService.add({ severity: 'success', summary: 'Предмет удалён' });
