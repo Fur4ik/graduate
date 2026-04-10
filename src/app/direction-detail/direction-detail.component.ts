@@ -16,19 +16,30 @@ import { SubjectsService, Subject } from '../services/subjects.service';
 import { FilesService, SubjectFile } from '../services/files.service';
 import { TeachersService, Teacher } from '../services/teachers.service';
 
-interface Status { id: number; name: string; }
+interface Status {
+  id: number;
+  name: string;
+}
 
 @Component({
   selector: 'app-direction-detail',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    TableModule, ButtonModule, DialogModule, InputTextModule,
-    SelectModule, TagModule, ProgressSpinnerModule,
-    ConfirmDialogModule, ToastModule,
+    CommonModule,
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    SelectModule,
+    TagModule,
+    ProgressSpinnerModule,
+    ConfirmDialogModule,
+    ToastModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './direction-detail.component.html',
+  styleUrl: './direction-detail.component.scss',
 })
 export class DirectionDetailComponent implements OnInit {
   table = '';
@@ -67,7 +78,10 @@ export class DirectionDetailComponent implements OnInit {
   loadSubjects(): void {
     this.loadingSubjects.set(true);
     this.subjectsService.getAll(this.table).subscribe({
-      next: (data) => { this.subjects.set(data); this.loadingSubjects.set(false); },
+      next: (data) => {
+        this.subjects.set(data);
+        this.loadingSubjects.set(false);
+      },
       error: () => this.loadingSubjects.set(false),
     });
   }
@@ -134,19 +148,21 @@ export class DirectionDetailComponent implements OnInit {
 
   addSubject(): void {
     if (!this.newSubject.subject.trim()) return;
-    this.subjectsService.create(this.table, {
-      subject: this.newSubject.subject,
-      teacherId: this.newSubject.teacherId ?? undefined,
-      statusId: this.newSubject.statusId ?? undefined,
-    }).subscribe({
-      next: () => {
-        this.showAddDialog.set(false);
-        this.newSubject = { subject: '', teacherId: null, statusId: null };
-        this.loadSubjects();
-        this.messageService.add({ severity: 'success', summary: 'Предмет добавлен' });
-      },
-      error: () => this.messageService.add({ severity: 'error', summary: 'Ошибка' }),
-    });
+    this.subjectsService
+      .create(this.table, {
+        subject: this.newSubject.subject,
+        teacherId: this.newSubject.teacherId ?? undefined,
+        statusId: this.newSubject.statusId ?? undefined,
+      })
+      .subscribe({
+        next: () => {
+          this.showAddDialog.set(false);
+          this.newSubject = { subject: '', teacherId: null, statusId: null };
+          this.loadSubjects();
+          this.messageService.add({ severity: 'success', summary: 'Предмет добавлен' });
+        },
+        error: () => this.messageService.add({ severity: 'error', summary: 'Ошибка' }),
+      });
   }
 
   deleteSubject(subject: Subject): void {

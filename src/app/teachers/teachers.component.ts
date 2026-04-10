@@ -11,6 +11,7 @@ import { TeachersService, Teacher } from '../services/teachers.service';
   standalone: true,
   imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule],
   templateUrl: './teachers.component.html',
+  styleUrl: './teachers.component.scss',
 })
 export class TeachersComponent implements OnInit {
   teachers = signal<Teacher[]>([]);
