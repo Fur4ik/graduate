@@ -5,8 +5,8 @@
   <div class="detail-header">
     <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="back()" />
     <div class="detail-title">
-      <span class="detail-direction">{{ getEntry(alias).direction }}</span>
-      <span class="detail-profile">{{ getEntry(alias).profile }}</span>
+      <span class="detail-direction">{{ entry.code }} {{ entry.direction }}</span>
+      <span class="detail-profile">{{ entry.profile }}</span>
     </div>
   </div>
 
@@ -182,6 +182,7 @@
   [header]="editingId() ? 'Редактировать предмет' : 'Новый предмет'"
   [visible]="showDialog()"
   (visibleChange)="showDialog.set($event)"
+  (onHide)="onDialogHide()"
   [modal]="true"
   [style]="{ width: '480px' }"
   [dismissableMask]="true"

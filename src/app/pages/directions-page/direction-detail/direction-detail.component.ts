@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,15 +14,14 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { SubjectsService, Subject } from '../../../shared/services/subjects.service';
-import { FilesService, SubjectFile } from '../../../shared/services/files.service';
-import { TeachersService, Teacher } from '../../../shared/services/teachers.service';
-import { getDirectionEntry } from '../../../shared/services/directions';
-
-interface Status {
-  id: number;
-  name: string;
-}
+import { SubjectsService } from '../../../shared/services/subjects.service';
+import { FilesService } from '../../../shared/services/files.service';
+import { TeachersService } from '../../../shared/services/teachers.service';
+import { DirectionsService } from '../../../shared/services/directions.service';
+import { Status } from '../../../shared/models/direction.models';
+import { Teacher } from '../../../shared/models/teacher.models';
+import { Subject } from '../../../shared/models/subject.models';
+import { SubjectFile } from '../../../shared/models/file.models';
 
 @Component({
   selector: 'app-direction-detail',
@@ -54,9 +53,13 @@ export class DirectionDetailComponent implements OnInit {
   private teachersService = inject(TeachersService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
+  private directionsService = inject(DirectionsService);
+  private cdr = inject(ChangeDetectorRef);
 
   alias = '';
-  getEntry = getDirectionEntry;
+  get entry() {
+    return this.directionsService.getEntry(this.alias);
+  }
   subjects = signal<Subject[]>([]);
   teachers = signal<Teacher[]>([]);
   files = signal<Record<number, SubjectFile[]>>({});
@@ -100,6 +103,9 @@ export class DirectionDetailComponent implements OnInit {
     this.alias = this.route.snapshot.paramMap.get('alias') ?? '';
     this.loadSubjects();
     this.teachersService.getAll().subscribe({ next: (t) => this.teachers.set(t) });
+    if (this.directionsService.directions().length === 0) {
+      this.directionsService.load().subscribe();
+    }
   }
 
   loadSubjects(): void {
@@ -242,6 +248,12 @@ export class DirectionDetailComponent implements OnInit {
     if (statusId === 1) return 'success';
     if (statusId === 2) return 'warn';
     return 'secondary';
+  }
+
+  onDialogHide(): void {
+    this.dialogSubject = { subject: '', teacherId: null, statusId: null };
+    this.editingId.set(null);
+    this.cdr.detectChanges();
   }
 
   back(): void {

@@ -6,30 +6,12 @@
   <div class="directions-page">
     @if (bachelor().length > 0) {
       <h2>Бакалавриат</h2>
-      <div class="directions-grid">
-        @for (table of bachelor(); track table) {
-          <div class="direction-card" (click)="open(table)">
-            <div class="card-content">
-              <span class="card-direction">{{ getEntry(table).direction }}</span>
-              <span class="card-profile">{{ getEntry(table).profile }}</span>
-            </div>
-          </div>
-        }
-      </div>
+      <app-direction-card-list [directions]="bachelor()" (selected)="open($event)" />
     }
 
     @if (master().length > 0) {
       <h2>Магистратура</h2>
-      <div class="directions-grid">
-        @for (table of master(); track table) {
-          <div class="direction-card" (click)="open(table)">
-            <div class="card-content">
-              <span class="card-direction">{{ getEntry(table).direction }}</span>
-              <span class="card-profile">{{ getEntry(table).profile }}</span>
-            </div>
-          </div>
-        }
-      </div>
+      <app-direction-card-list [directions]="master()" (selected)="open($event)" />
     }
   </div>
 }

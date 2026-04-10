@@ -10,8 +10,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { TeachersService, Teacher, TeacherSubject } from '../../../shared/services/teachers.service';
-import { getDirectionEntry } from '../../../shared/services/directions';
+import { TeachersService } from '../../../shared/services/teachers.service';
+import { DirectionsService } from '../../../shared/services/directions.service';
+import { Teacher, TeacherSubject } from '../../../shared/models/teacher.models';
 
 @Component({
   selector: 'app-teachers',
@@ -36,6 +37,7 @@ export class TeachersComponent implements OnInit {
   private teachersService = inject(TeachersService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
+  private directionsService = inject(DirectionsService);
 
   teachers = signal<Teacher[]>([]);
   loading = signal(true);
@@ -46,10 +48,11 @@ export class TeachersComponent implements OnInit {
   editingId = signal<number | null>(null);
   dialogTeacher = { name: '', email: '' };
 
-  getEntry = getDirectionEntry;
-
   ngOnInit(): void {
     this.load();
+    if (this.directionsService.directions().length === 0) {
+      this.directionsService.load().subscribe();
+    }
   }
 
   load(): void {
@@ -100,11 +103,10 @@ export class TeachersComponent implements OnInit {
       list.push(s);
       map.set(s.table_name, list);
     }
-    return Array.from(map.entries()).map(([table, items]) => ({
-      direction: this.getEntry(table).direction,
-      profile: this.getEntry(table).profile,
-      items,
-    }));
+    return Array.from(map.entries()).map(([alias, items]) => {
+      const entry = this.directionsService.getEntry(alias);
+      return { direction: entry.direction, profile: entry.profile, items };
+    });
   }
 
   openAddDialog(): void {

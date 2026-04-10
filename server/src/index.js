@@ -6,6 +6,7 @@ const subjectsRouter = require('./routes/subjects');
 const filesRouter = require('./routes/files');
 const statusesRouter = require('./routes/statuses');
 const teachersRouter = require('./routes/teachers');
+const directionsRouter = require('./routes/directions');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api', directionsRouter);
 app.use('/api', subjectsRouter);
 app.use('/api', filesRouter);
 app.use('/api', statusesRouter);

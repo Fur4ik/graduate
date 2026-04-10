@@ -1,0 +1,5 @@
+<div class="directions-grid">
+  @for (direction of directions(); track direction) {
+    <app-direction-card [direction]="direction" (selected)="selected.emit($event)" />
+  }
+</div>

@@ -1,36 +1,24 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Subject } from '../models/subject.models';
+import { API } from '../constants/core.constants';
 
-export interface Subject {
-  id: number;
-  subject: string;
-  statusId: number;
-  statusName: string;
-  teacherId: number;
-  teacherName: string;
-  teacherEmail: string | null;
-}
-
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class SubjectsService {
-  private readonly api = 'http://localhost:3000/api';
-
-  constructor(private http: HttpClient) {}
-
-  getTables(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.api}/tables`);
-  }
+  private http = inject(HttpClient);
 
   getAll(alias: string): Observable<Subject[]> {
-    return this.http.get<Subject[]>(`${this.api}/subjects/${alias}`);
+    return this.http.get<Subject[]>(`${API}/subjects/${alias}`);
   }
 
   create(
     alias: string,
     data: { subject: string; teacherId?: number; statusId?: number },
   ): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(`${this.api}/subjects/${alias}`, data);
+    return this.http.post<{ id: number }>(`${API}/subjects/${alias}`, data);
   }
 
   update(
@@ -38,10 +26,10 @@ export class SubjectsService {
     id: number,
     data: Partial<{ subject: string; teacherId: number; statusId: number }>,
   ): Observable<Subject> {
-    return this.http.put<Subject>(`${this.api}/subjects/${alias}/${id}`, data);
+    return this.http.put<Subject>(`${API}/subjects/${alias}/${id}`, data);
   }
 
   delete(alias: string, id: number): Observable<{ deleted: number }> {
-    return this.http.delete<{ deleted: number }>(`${this.api}/subjects/${alias}/${id}`);
+    return this.http.delete<{ deleted: number }>(`${API}/subjects/${alias}/${id}`);
   }
 }

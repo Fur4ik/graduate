@@ -1,11 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { TABLES, isValidAlias, getByAlias } = require('../tables');
-
-router.get('/tables', (req, res) => {
-  res.json(TABLES.map((t) => t.alias));
-});
+const { isValidAlias, getByAlias } = require('../tables');
 
 router.get('/subjects/:alias', async (req, res) => {
   const entry = getByAlias(req.params.alias);
