@@ -18,7 +18,7 @@
           pInputText
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
-          placeholder="Предмет / преподаватель"
+          placeholder="Дисциплина / преподаватель"
           class="search-input"
         />
       </p-iconfield>
@@ -44,10 +44,13 @@
       />
     </div>
     <div class="toolbar-actions">
-      <a [href]="downloadAllDirectionUrl()" download>
-        <p-button label="Скачать все файлы" icon="pi pi-download" severity="secondary" />
+      <a [href]="reportUrl()" download>
+        <p-button label="Отчёт заполненности" icon="pi pi-file-pdf" severity="secondary" />
       </a>
-      <p-button label="Добавить предмет" icon="pi pi-plus" (onClick)="openAddDialog()" />
+      <a [href]="downloadAllDirectionUrl()" download>
+        <p-button label="Экспортировать файлы" icon="pi pi-download" severity="secondary" />
+      </a>
+      <p-button label="Добавить дисциплину" icon="pi pi-plus" (onClick)="openAddDialog()" />
     </div>
   </div>
 
@@ -60,7 +63,7 @@
       <ng-template #header>
         <tr>
           <th style="width: 3rem"></th>
-          <th>Предмет</th>
+          <th>Дисциплина</th>
           <th>Преподаватель</th>
           <th>Статус</th>
           <th style="width: 90px"></th>
@@ -123,14 +126,16 @@
                 <div class="files-header">
                   <span>Файлы</span>
                   <div class="files-header-actions">
-                    <a [href]="downloadAllSubjectUrl(subject.id)" download>
-                      <p-button
-                        label="Скачать файлы"
-                        icon="pi pi-download"
-                        size="small"
-                        severity="secondary"
-                      />
-                    </a>
+                    @if (getFiles(subject.id).length > 0) {
+                      <a [href]="downloadAllSubjectUrl(subject.id)" download>
+                        <p-button
+                          label="Скачать файлы"
+                          icon="pi pi-download"
+                          size="small"
+                          severity="secondary"
+                        />
+                      </a>
+                    }
                     <p-button
                       label="Загрузить файл"
                       icon="pi pi-upload"
@@ -186,7 +191,7 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5" style="text-align: center; padding: 24px">Предметы не найдены</td>
+          <td colspan="5" style="text-align: center; padding: 24px">Дисциплины не найдены</td>
         </tr>
       </ng-template>
     </p-table>
@@ -194,7 +199,7 @@
 </div>
 
 <p-dialog
-  [header]="editingId() ? 'Редактировать предмет' : 'Новый предмет'"
+  [header]="editingId() ? 'Редактировать дисциплину' : 'Новая дисциплина'"
   [visible]="showDialog()"
   (visibleChange)="showDialog.set($event)"
   (onHide)="onDialogHide()"
@@ -208,7 +213,7 @@
       <input
         pInputText
         [(ngModel)]="dialogSubject.subject"
-        placeholder="Введите название предмета"
+        placeholder="Введите название дисциплины"
       />
     </div>
 

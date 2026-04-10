@@ -12,7 +12,7 @@ function dirFolderName(entry) {
   return `${entry.code} ${entry.name}`.replace(/[/\\:*?"<>|]/g, '_').trim();
 }
 
-// Загрузить все файлы предмета из БД
+// Загрузить все файлы дисциплины из БД
 async function fetchSubjectFiles(filesTable, subjectId) {
   const result = await pool.query(
     `SELECT id, file_name, file_data FROM "${filesTable}" WHERE subject_id = $1`,
@@ -29,7 +29,7 @@ async function fetchDirectionLabel(alias) {
   return res.rows[0] ?? null;
 }
 
-// ─── Скачать все файлы по предмету ───────────────────────────────────────────
+// ─── Скачать все файлы по дисциплине ───────────────────────────────────────────
 
 router.get('/files/:alias/subject/:subjectId/download-all', async (req, res) => {
   if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });

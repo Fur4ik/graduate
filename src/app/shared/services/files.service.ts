@@ -32,6 +32,10 @@ export class FilesService {
     return `${API}/files/${alias}/download-all`;
   }
 
+  reportUrl(alias: string): string {
+    return `${API}/report/${alias}`;
+  }
+
   delete(alias: string, subjectId: number, fileId: number): Observable<{ deleted: number }> {
     return this.http.delete<{ deleted: number }>(`${API}/files/${alias}/${subjectId}/${fileId}`);
   }

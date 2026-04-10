@@ -218,7 +218,7 @@ export class DirectionDetailComponent implements OnInit {
         this.loadSubjects();
         this.messageService.add({
           severity: 'success',
-          summary: id ? 'Предмет обновлён' : 'Предмет добавлен',
+          summary: id ? 'Дисциплина обновлена' : 'Дисциплина добавлена',
         });
       },
       error: () => this.messageService.add({ severity: 'error', summary: 'Ошибка' }),
@@ -227,8 +227,8 @@ export class DirectionDetailComponent implements OnInit {
 
   deleteSubject(subject: Subject): void {
     this.confirmationService.confirm({
-      message: `Вы уверены, что хотите удалить предмет «${subject.subject}»?`,
-      header: 'Удаление предмета',
+      message: `Вы уверены, что хотите удалить дисциплину «${subject.subject}»?`,
+      header: 'Удаление дисциплины',
       acceptLabel: 'Удалить',
       rejectLabel: 'Отмена',
       acceptButtonProps: { severity: 'danger' },
@@ -237,7 +237,7 @@ export class DirectionDetailComponent implements OnInit {
         this.subjectsService.delete(this.alias, subject.id).subscribe({
           next: () => {
             this.loadSubjects();
-            this.messageService.add({ severity: 'success', summary: 'Предмет удалён' });
+            this.messageService.add({ severity: 'success', summary: 'Дисциплина удалена' });
           },
         });
       },
@@ -262,6 +262,10 @@ export class DirectionDetailComponent implements OnInit {
 
   downloadAllDirectionUrl(): string {
     return this.filesService.downloadAllDirectionUrl(this.alias);
+  }
+
+  reportUrl(): string {
+    return this.filesService.reportUrl(this.alias);
   }
 
   back(): void {

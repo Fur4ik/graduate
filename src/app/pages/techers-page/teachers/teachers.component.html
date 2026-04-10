@@ -68,7 +68,7 @@
             <td colspan="4">
               <div class="subjects-panel">
                 @if (getSubjects(teacher.id).length === 0) {
-                  <p class="subjects-empty">Нет привязанных предметов</p>
+                  <p class="subjects-empty">Нет привязанных дисциплин</p>
                 } @else {
                   @for (group of groupByDirection(getSubjects(teacher.id)); track group.profile) {
                     <div class="direction-group">
