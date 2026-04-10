@@ -58,10 +58,11 @@ router.post('/files/:table/:subjectId', upload.single('file'), async (req, res) 
 
   const filesTable = getFilesTable(table);
   try {
+    const fileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
     const result = await pool.query(
       `INSERT INTO "${filesTable}" (subject_id, file_data, file_name, file_type)
        VALUES ($1, $2, $3, $4) RETURNING id`,
-      [subjectId, req.file.buffer, req.file.originalname, req.file.mimetype],
+      [subjectId, req.file.buffer, fileName, req.file.mimetype],
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

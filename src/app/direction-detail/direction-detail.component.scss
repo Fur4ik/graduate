@@ -32,8 +32,23 @@
 
 .toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.search-input {
+  width: 280px;
 }
 
 .spinner-wrap {
@@ -57,6 +72,12 @@
 
 .no-value {
   color: #94a3b8;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .status-cell {

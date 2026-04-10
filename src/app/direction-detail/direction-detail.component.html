@@ -1,5 +1,5 @@
 <p-toast />
-<p-confirmDialog />
+<p-confirmDialog [style]="{ width: '420px' }" [dismissableMask]="true" />
 
 <div class="detail-page">
   <div class="detail-header">
@@ -11,7 +11,39 @@
   </div>
 
   <div class="toolbar">
-    <p-button label="Добавить предмет" icon="pi pi-plus" (onClick)="showAddDialog.set(true)" />
+    <div class="filters">
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input
+          pInputText
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Предмет / преподаватель"
+          class="search-input"
+        />
+      </p-iconfield>
+      <p-select
+        [options]="teachers()"
+        [ngModel]="filterTeacherId()"
+        (ngModelChange)="filterTeacherId.set($event)"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Преподаватель"
+        [showClear]="true"
+        appendTo="body"
+      />
+      <p-select
+        [options]="statuses"
+        [ngModel]="filterStatusId()"
+        (ngModelChange)="filterStatusId.set($event)"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Статус"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+    <p-button label="Добавить предмет" icon="pi pi-plus" (onClick)="openAddDialog()" />
   </div>
 
   @if (loadingSubjects()) {
@@ -19,15 +51,14 @@
       <p-progressSpinner />
     </div>
   } @else {
-    <p-table [value]="subjects()" styleClass="p-datatable-striped" [rowHover]="true">
+    <p-table [value]="filteredSubjects()" styleClass="p-datatable-striped" [rowHover]="true">
       <ng-template #header>
         <tr>
           <th style="width: 3rem"></th>
-          <th style="width: 60px">#</th>
           <th>Предмет</th>
           <th>Преподаватель</th>
           <th>Статус</th>
-          <th style="width: 60px"></th>
+          <th style="width: 90px"></th>
         </tr>
       </ng-template>
 
@@ -41,7 +72,6 @@
               (onClick)="toggleRow(subject)"
             />
           </td>
-          <td>{{ subject.id }}</td>
           <td>{{ subject.subject }}</td>
           <td>
             @if (subject.teacher_name) {
@@ -64,18 +94,26 @@
             }
           </td>
           <td>
-            <p-button
-              icon="pi pi-trash"
-              severity="danger"
-              [text]="true"
-              (onClick)="deleteSubject(subject)"
-            />
+            <div class="row-actions">
+              <p-button
+                icon="pi pi-pencil"
+                severity="secondary"
+                [text]="true"
+                (onClick)="openEditDialog(subject)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                (onClick)="deleteSubject(subject)"
+              />
+            </div>
           </td>
         </tr>
 
         @if (isExpanded(subject.id)) {
           <tr>
-            <td colspan="6">
+            <td colspan="5">
               <div class="files-panel">
                 <div class="files-header">
                   <span>Файлы</span>
@@ -133,7 +171,7 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" style="text-align: center; padding: 24px">Предметы не найдены</td>
+          <td colspan="5" style="text-align: center; padding: 24px">Предметы не найдены</td>
         </tr>
       </ng-template>
     </p-table>
@@ -141,23 +179,28 @@
 </div>
 
 <p-dialog
-  header="Новый предмет"
-  [visible]="showAddDialog()"
-  (visibleChange)="showAddDialog.set($event)"
+  [header]="editingId() ? 'Редактировать предмет' : 'Новый предмет'"
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
   [modal]="true"
   [style]="{ width: '480px' }"
+  [dismissableMask]="true"
 >
   <div class="dialog-form">
     <div class="form-field">
       <label>Название *</label>
-      <input pInputText [(ngModel)]="newSubject.subject" placeholder="Введите название предмета" />
+      <input
+        pInputText
+        [(ngModel)]="dialogSubject.subject"
+        placeholder="Введите название предмета"
+      />
     </div>
 
     <div class="form-field">
       <label>Преподаватель</label>
       <p-select
         [options]="teachers()"
-        [(ngModel)]="newSubject.teacherId"
+        [(ngModel)]="dialogSubject.teacherId"
         optionLabel="name"
         optionValue="id"
         placeholder="Выберите преподавателя"
@@ -170,7 +213,7 @@
       <label>Статус</label>
       <p-select
         [options]="statuses"
-        [(ngModel)]="newSubject.statusId"
+        [(ngModel)]="dialogSubject.statusId"
         optionLabel="name"
         optionValue="id"
         placeholder="Выберите статус"
@@ -186,9 +229,13 @@
         label="Отмена"
         severity="secondary"
         [text]="true"
-        (onClick)="showAddDialog.set(false)"
+        (onClick)="showDialog.set(false)"
       />
-      <p-button label="Добавить" icon="pi pi-check" (onClick)="addSubject()" />
+      <p-button
+        [label]="editingId() ? 'Сохранить' : 'Добавить'"
+        icon="pi pi-check"
+        (onClick)="saveSubject()"
+      />
     </div>
   </ng-template>
 </p-dialog>
