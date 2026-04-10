@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { SubjectsService, Subject } from '../services/subjects.service';
 import { FilesService, SubjectFile } from '../services/files.service';
 import { TeachersService, Teacher } from '../services/teachers.service';
+import { getDirectionEntry } from '../services/directions';
 
 interface Status {
   id: number;
@@ -51,6 +52,7 @@ export class DirectionDetailComponent implements OnInit {
   private messageService = inject(MessageService);
 
   table = '';
+  getEntry = getDirectionEntry;
   subjects = signal<Subject[]>([]);
   teachers = signal<Teacher[]>([]);
   files = signal<Record<number, SubjectFile[]>>({});

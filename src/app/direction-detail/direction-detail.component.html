@@ -4,7 +4,10 @@
 <div class="detail-page">
   <div class="detail-header">
     <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="back()" />
-    <h1>{{ table }}</h1>
+    <div class="detail-title">
+      <span class="detail-direction">{{ getEntry(table).direction }}</span>
+      <span class="detail-profile">{{ getEntry(table).profile }}</span>
+    </div>
   </div>
 
   <div class="toolbar">
@@ -52,7 +55,7 @@
               <span class="no-value">—</span>
             }
           </td>
-          <td>
+          <td class="status-cell">
             @if (subject.status_name) {
               <p-tag
                 [value]="subject.status_name"

@@ -7,6 +7,15 @@ router.get('/tables', (req, res) => {
   res.json(TABLES.map((t) => t.name));
 });
 
+router.get('/teachers', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM teachers ORDER BY id');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/subjects/:table', async (req, res) => {
   const table = req.params.table;
   if (!isValidTable(table)) return res.status(400).json({ error: 'Unknown table' });
@@ -24,8 +33,8 @@ router.get('/subjects/:table', async (req, res) => {
               p.id AS teacher_id, p.name AS teacher_name, p.email AS teacher_email,
               st.name AS status_name
        FROM "${table}" s
-       LEFT JOIN "Преподаватели" p ON s.teacher_id = p.id
-       LEFT JOIN "Статус" st ON s.status_id = st.id
+       LEFT JOIN teachers p ON s.teacher_id = p.id
+       LEFT JOIN statuses st ON s.status_id = st.id
        ORDER BY s.id`,
     );
     res.json(result.rows);
@@ -51,8 +60,8 @@ router.get('/subjects/:table/:id', async (req, res) => {
               p.id AS teacher_id, p.name AS teacher_name, p.email AS teacher_email,
               st.name AS status_name
        FROM "${table}" s
-       LEFT JOIN "Преподаватели" p ON s.teacher_id = p.id
-       LEFT JOIN "Статус" st ON s.status_id = st.id
+       LEFT JOIN teachers p ON s.teacher_id = p.id
+       LEFT JOIN statuses st ON s.status_id = st.id
        WHERE s.id = $1`,
       [id],
     );

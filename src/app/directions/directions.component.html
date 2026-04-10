@@ -5,16 +5,39 @@
 } @else {
   <div class="directions-page">
     <h1>Направления</h1>
-    <div class="directions-grid">
-      @for (table of tables(); track table) {
-        <p-card [header]="table" class="direction-card">
-          <ng-template #footer>
+
+    @if (bachelor().length > 0) {
+      <h2>Бакалавриат</h2>
+      <div class="directions-grid">
+        @for (table of bachelor(); track table) {
+          <div class="direction-card" (click)="open(table)">
+            <div class="card-content">
+              <span class="card-direction">{{ getEntry(table).direction }}</span>
+              <span class="card-profile">{{ getEntry(table).profile }}</span>
+            </div>
             <div class="card-footer">
               <p-button label="Открыть" icon="pi pi-arrow-right" (onClick)="open(table)" />
             </div>
-          </ng-template>
-        </p-card>
-      }
-    </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (master().length > 0) {
+      <h2>Магистратура</h2>
+      <div class="directions-grid">
+        @for (table of master(); track table) {
+          <div class="direction-card" (click)="open(table)">
+            <div class="card-content">
+              <span class="card-direction">{{ getEntry(table).direction }}</span>
+              <span class="card-profile">{{ getEntry(table).profile }}</span>
+            </div>
+            <div class="card-footer">
+              <p-button label="Открыть" icon="pi pi-arrow-right" (onClick)="open(table)" />
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 }

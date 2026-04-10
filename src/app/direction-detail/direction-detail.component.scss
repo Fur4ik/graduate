@@ -8,10 +8,25 @@
   gap: 12px;
   margin-bottom: 24px;
 
-  h1 {
-    font-size: 22px;
+  .detail-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .detail-direction {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .detail-profile {
+    font-size: 20px;
     font-weight: 700;
     color: #0f172a;
+    line-height: 1.3;
   }
 }
 
@@ -42,6 +57,10 @@
 
 .no-value {
   color: #94a3b8;
+}
+
+.status-cell {
+  white-space: nowrap;
 }
 
 // Развёрнутая строка с файлами

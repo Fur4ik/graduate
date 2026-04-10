@@ -26,15 +26,27 @@ export class SubjectsService {
     return this.http.get<Subject[]>(`${this.api}/subjects/${encodeURIComponent(table)}`);
   }
 
-  create(table: string, data: { subject: string; teacherId?: number; statusId?: number }): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(`${this.api}/subjects/${encodeURIComponent(table)}`, data);
+  create(
+    table: string,
+    data: { subject: string; teacherId?: number; statusId?: number },
+  ): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(
+      `${this.api}/subjects/${encodeURIComponent(table)}`,
+      data,
+    );
   }
 
-  update(table: string, id: number, data: Partial<{ subject: string; teacherId: number; statusId: number }>): Observable<Subject> {
+  update(
+    table: string,
+    id: number,
+    data: Partial<{ subject: string; teacherId: number; statusId: number }>,
+  ): Observable<Subject> {
     return this.http.put<Subject>(`${this.api}/subjects/${encodeURIComponent(table)}/${id}`, data);
   }
 
   delete(table: string, id: number): Observable<{ deleted: number }> {
-    return this.http.delete<{ deleted: number }>(`${this.api}/subjects/${encodeURIComponent(table)}/${id}`);
+    return this.http.delete<{ deleted: number }>(
+      `${this.api}/subjects/${encodeURIComponent(table)}/${id}`,
+    );
   }
 }

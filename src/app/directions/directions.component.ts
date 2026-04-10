@@ -1,14 +1,19 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SubjectsService } from '../services/subjects.service';
+import {
+  getDirectionLabel,
+  getDirectionEntry,
+  BACHELOR_DIRECTIONS,
+  MASTER_DIRECTIONS,
+} from '../services/directions';
 
 @Component({
   selector: 'app-directions',
   standalone: true,
-  imports: [CardModule, ButtonModule, ProgressSpinnerModule],
+  imports: [ButtonModule, ProgressSpinnerModule],
   templateUrl: './directions.component.html',
   styleUrl: './directions.component.scss',
 })
@@ -19,6 +24,9 @@ export class DirectionsComponent implements OnInit {
   tables = signal<string[]>([]);
   loading = signal(true);
 
+  bachelor = computed(() => this.tables().filter((t) => t in BACHELOR_DIRECTIONS));
+  master = computed(() => this.tables().filter((t) => t in MASTER_DIRECTIONS));
+
   ngOnInit(): void {
     this.subjectsService.getTables().subscribe({
       next: (data) => {
@@ -28,6 +36,9 @@ export class DirectionsComponent implements OnInit {
       error: () => this.loading.set(false),
     });
   }
+
+  getLabel = getDirectionLabel;
+  getEntry = getDirectionEntry;
 
   open(table: string): void {
     this.router.navigate(['/direction', encodeURIComponent(table)]);

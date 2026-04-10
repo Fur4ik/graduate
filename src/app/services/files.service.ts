@@ -7,7 +7,6 @@ export interface SubjectFile {
   subjectId: number;
   name: string;
   type: string;
-  timestamp: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,7 +17,7 @@ export class FilesService {
 
   getAll(table: string, subjectId: number): Observable<SubjectFile[]> {
     return this.http.get<SubjectFile[]>(
-      `${this.api}/files/${encodeURIComponent(table)}/${subjectId}`
+      `${this.api}/files/${encodeURIComponent(table)}/${subjectId}`,
     );
   }
 
@@ -27,7 +26,7 @@ export class FilesService {
     form.append('file', file);
     return this.http.post<{ id: number }>(
       `${this.api}/files/${encodeURIComponent(table)}/${subjectId}`,
-      form
+      form,
     );
   }
 
@@ -37,7 +36,7 @@ export class FilesService {
 
   delete(table: string, subjectId: number, fileId: number): Observable<{ deleted: number }> {
     return this.http.delete<{ deleted: number }>(
-      `${this.api}/files/${encodeURIComponent(table)}/${subjectId}/${fileId}`
+      `${this.api}/files/${encodeURIComponent(table)}/${subjectId}/${fileId}`,
     );
   }
 }

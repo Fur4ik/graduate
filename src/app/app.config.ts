@@ -14,5 +14,5 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideAnimationsAsync(),
     providePrimeNG({ theme: { preset: Aura } }),
-  ]
+  ],
 };

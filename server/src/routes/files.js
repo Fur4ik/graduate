@@ -14,8 +14,7 @@ router.get('/files/:table/:subjectId', async (req, res) => {
   const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
-      `SELECT id, subject_id, file_name AS name, file_type AS type,
-              file_timestamp AS timestamp, file_url AS url
+      `SELECT id, subject_id, file_name AS name, file_type AS type
        FROM "${filesTable}" WHERE subject_id = $1`,
       [subjectId],
     );
@@ -60,8 +59,8 @@ router.post('/files/:table/:subjectId', upload.single('file'), async (req, res) 
   const filesTable = getFilesTable(table);
   try {
     const result = await pool.query(
-      `INSERT INTO "${filesTable}" (subject_id, file_data, file_flags, file_name, file_timestamp, file_type)
-       VALUES ($1, $2, 0, $3, NOW(), $4) RETURNING id`,
+      `INSERT INTO "${filesTable}" (subject_id, file_data, file_name, file_type)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
       [subjectId, req.file.buffer, req.file.originalname, req.file.mimetype],
     );
     res.status(201).json(result.rows[0]);
