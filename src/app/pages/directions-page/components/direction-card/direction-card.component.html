@@ -3,4 +3,20 @@
     <span class="card-direction">{{ direction().code }} {{ direction().direction }}</span>
     <span class="card-profile">{{ direction().profile }}</span>
   </div>
+  <div class="card-actions" (click)="$event.stopPropagation()">
+    <p-button
+      icon="pi pi-pencil"
+      severity="secondary"
+      [text]="true"
+      size="small"
+      (onClick)="onEdit($event)"
+    />
+    <p-button
+      icon="pi pi-trash"
+      severity="danger"
+      [text]="true"
+      size="small"
+      (onClick)="onDelete($event)"
+    />
+  </div>
 </div>

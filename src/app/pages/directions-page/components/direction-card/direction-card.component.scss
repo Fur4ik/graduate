@@ -44,3 +44,16 @@
   color: #0f172a;
   line-height: 1.4;
 }
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-top: auto;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.direction-card:hover .card-actions {
+  opacity: 1;
+}
