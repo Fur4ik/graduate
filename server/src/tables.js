@@ -12,8 +12,4 @@ function isValidId(id) {
   return validIds.has(id);
 }
 
-function getIds() {
-  return [...validIds];
-}
-
-module.exports = { init, isValidId, getIds };
+module.exports = { init, isValidId };
