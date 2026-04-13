@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { getTables } = require('../tables');
 
 router.get('/teachers', async (req, res) => {
   try {
@@ -15,11 +14,14 @@ router.get('/teachers', async (req, res) => {
 router.get('/teachers/:id/subjects', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    const parts = getTables().map(
-      (t) =>
-        `SELECT '${t.alias}' AS table_name, s.id, s.subject FROM "${t.name}" s WHERE s.teacher_id = ${id}`,
+    const result = await pool.query(
+      `SELECT d.alias AS table_name, s.id, s.subject
+       FROM subjects s
+       JOIN directions d ON s.direction_id = d.id
+       WHERE s.teacher_id = $1
+       ORDER BY d.alias, s.id`,
+      [id],
     );
-    const result = await pool.query(parts.join(' UNION ALL ') + ' ORDER BY table_name, id');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
