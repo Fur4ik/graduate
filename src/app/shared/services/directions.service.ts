@@ -53,18 +53,18 @@ export class DirectionsService {
   }
 
   updateDirection(
-    alias: string,
+    id: number,
     body: { degreeLevelId?: number | null; code?: string; name?: string; profile?: string },
   ): Observable<DirectionEntry> {
     return this.http
-      .put<DirectionEntry>(`${API}/directions/${alias}`, body)
+      .put<DirectionEntry>(`${API}/directions/${id}`, body)
       .pipe(tap(() => this.load().subscribe()));
   }
 
-  deleteDirection(alias: string): Observable<{ deleted: number }> {
+  deleteDirection(id: number): Observable<{ deleted: number }> {
     return this.http
-      .delete<{ deleted: number }>(`${API}/directions/${alias}`)
-      .pipe(tap(() => this._directions.update((list) => list.filter((d) => d.alias !== alias))));
+      .delete<{ deleted: number }>(`${API}/directions/${id}`)
+      .pipe(tap(() => this._directions.update((list) => list.filter((d) => d.id !== id))));
   }
 
   createDegreeLevel(name: string): Observable<DegreeLevel> {
@@ -79,13 +79,12 @@ export class DirectionsService {
       .pipe(tap(() => this._degreeLevels.update((list) => list.filter((l) => l.id !== id))));
   }
 
-  getEntry(alias: string): DirectionEntry {
+  getEntry(id: number): DirectionEntry {
     return (
-      this._directions().find((d) => d.alias === alias) ?? {
-        id: 0,
-        alias,
+      this._directions().find((d) => d.id === id) ?? {
+        id,
         code: '',
-        direction: alias,
+        direction: '',
         profile: '',
         degree_level_id: 0,
         degree_level: '',

@@ -11,13 +11,13 @@ import { DirectionEntry } from '../../../../shared/models/direction.models';
 })
 export class DirectionCardComponent {
   direction = input.required<DirectionEntry>();
-  selected = output<string>();
-  deleted = output<string>();
+  selected = output<number>();
+  deleted = output<number>();
   edited = output<DirectionEntry>();
 
   onDelete(event: Event): void {
     event.stopPropagation();
-    this.deleted.emit(this.direction().alias);
+    this.deleted.emit(this.direction().id);
   }
 
   onEdit(event: Event): void {

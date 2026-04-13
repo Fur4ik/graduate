@@ -56,9 +56,9 @@ export class DirectionDetailComponent implements OnInit {
   private directionsService = inject(DirectionsService);
   private cdr = inject(ChangeDetectorRef);
 
-  alias = '';
+  directionId = 0;
   get entry() {
-    return this.directionsService.getEntry(this.alias);
+    return this.directionsService.getEntry(this.directionId);
   }
   subjects = signal<Subject[]>([]);
   teachers = signal<Teacher[]>([]);
@@ -100,7 +100,7 @@ export class DirectionDetailComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.alias = this.route.snapshot.paramMap.get('alias') ?? '';
+    this.directionId = parseInt(this.route.snapshot.paramMap.get('id') ?? '0');
     this.loadSubjects();
     this.teachersService.getAll().subscribe({ next: (t) => this.teachers.set(t) });
     if (this.directionsService.directions().length === 0) {
@@ -110,7 +110,7 @@ export class DirectionDetailComponent implements OnInit {
 
   loadSubjects(): void {
     this.loadingSubjects.set(true);
-    this.subjectsService.getAll(this.alias).subscribe({
+    this.subjectsService.getAll(this.directionId).subscribe({
       next: (data) => {
         this.subjects.set(data);
         this.loadingSubjects.set(false);
@@ -138,7 +138,7 @@ export class DirectionDetailComponent implements OnInit {
   }
 
   loadFiles(subjectId: number): void {
-    this.filesService.getAll(this.alias, subjectId).subscribe({
+    this.filesService.getAll(this.directionId, subjectId).subscribe({
       next: (data) => this.files.set({ ...this.files(), [subjectId]: data }),
     });
   }
@@ -148,14 +148,14 @@ export class DirectionDetailComponent implements OnInit {
   }
 
   downloadUrl(subjectId: number, fileId: number): string {
-    return this.filesService.downloadUrl(this.alias, subjectId, fileId);
+    return this.filesService.downloadUrl(this.directionId, subjectId, fileId);
   }
 
   onFileUpload(event: Event, subjectId: number): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    this.filesService.upload(this.alias, subjectId, file).subscribe({
+    this.filesService.upload(this.directionId, subjectId, file).subscribe({
       next: () => {
         this.loadFiles(subjectId);
         this.messageService.add({ severity: 'success', summary: 'Файл загружен' });
@@ -174,7 +174,7 @@ export class DirectionDetailComponent implements OnInit {
       acceptButtonProps: { severity: 'danger' },
       rejectButtonProps: { severity: 'secondary', outlined: true },
       accept: () => {
-        this.filesService.delete(this.alias, subjectId, fileId).subscribe({
+        this.filesService.delete(this.directionId, subjectId, fileId).subscribe({
           next: () => {
             this.loadFiles(subjectId);
             this.messageService.add({ severity: 'success', summary: 'Файл удалён' });
@@ -209,8 +209,8 @@ export class DirectionDetailComponent implements OnInit {
     };
     const id = this.editingId();
     const request$ = id
-      ? this.subjectsService.update(this.alias, id, data)
-      : this.subjectsService.create(this.alias, data);
+      ? this.subjectsService.update(this.directionId, id, data)
+      : this.subjectsService.create(this.directionId, data);
 
     request$.subscribe({
       next: () => {
@@ -234,7 +234,7 @@ export class DirectionDetailComponent implements OnInit {
       acceptButtonProps: { severity: 'danger' },
       rejectButtonProps: { severity: 'secondary', outlined: true },
       accept: () => {
-        this.subjectsService.delete(this.alias, subject.id).subscribe({
+        this.subjectsService.delete(this.directionId, subject.id).subscribe({
           next: () => {
             this.loadSubjects();
             this.messageService.add({ severity: 'success', summary: 'Дисциплина удалена' });
@@ -257,15 +257,15 @@ export class DirectionDetailComponent implements OnInit {
   }
 
   downloadAllSubjectUrl(subjectId: number): string {
-    return this.filesService.downloadAllSubjectUrl(this.alias, subjectId);
+    return this.filesService.downloadAllSubjectUrl(this.directionId, subjectId);
   }
 
   downloadAllDirectionUrl(): string {
-    return this.filesService.downloadAllDirectionUrl(this.alias);
+    return this.filesService.downloadAllDirectionUrl(this.directionId);
   }
 
   reportUrl(): string {
-    return this.filesService.reportUrl(this.alias);
+    return this.filesService.reportUrl(this.directionId);
   }
 
   back(): void {

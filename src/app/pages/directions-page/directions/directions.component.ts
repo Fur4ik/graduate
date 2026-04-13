@@ -49,7 +49,7 @@ export class DirectionsComponent implements OnInit {
   loading = signal(true);
   showDirectionDialog = signal(false);
   showDegreeLevelDialog = signal(false);
-  editingAlias = signal<string | null>(null);
+  editingDirectionId = signal<number | null>(null);
 
   grouped = this.directionsService.grouped;
   degreeLevels = this.directionsService.degreeLevels;
@@ -66,18 +66,18 @@ export class DirectionsComponent implements OnInit {
     });
   }
 
-  open(alias: string): void {
-    this.router.navigate(['/direction', alias]);
+  open(id: number): void {
+    this.router.navigate(['/direction', id]);
   }
 
   openAddDialog(): void {
-    this.editingAlias.set(null);
+    this.editingDirectionId.set(null);
     this.directionForm = emptyDirectionForm();
     this.showDirectionDialog.set(true);
   }
 
   openEditDialog(direction: DirectionEntry): void {
-    this.editingAlias.set(direction.alias);
+    this.editingDirectionId.set(direction.id);
     this.directionForm = {
       degreeLevelId: direction.degree_level_id,
       code: direction.code,
@@ -94,16 +94,16 @@ export class DirectionsComponent implements OnInit {
       return;
     }
 
-    const alias = this.editingAlias();
-    const obs = alias
-      ? this.directionsService.updateDirection(alias, f)
+    const id = this.editingDirectionId();
+    const obs = id
+      ? this.directionsService.updateDirection(id, f)
       : this.directionsService.createDirection(f);
 
     obs.subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: alias ? 'Направление обновлено' : 'Направление добавлено',
+          summary: id ? 'Направление обновлено' : 'Направление добавлено',
         });
         this.showDirectionDialog.set(false);
       },
@@ -113,7 +113,7 @@ export class DirectionsComponent implements OnInit {
     });
   }
 
-  deleteDirection(alias: string): void {
+  deleteDirection(id: number): void {
     this.confirmationService.confirm({
       message: 'Удалить направление? Все дисциплины и файлы будут удалены.',
       header: 'Подтверждение',
@@ -122,7 +122,7 @@ export class DirectionsComponent implements OnInit {
       rejectLabel: 'Отмена',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.directionsService.deleteDirection(alias).subscribe({
+        this.directionsService.deleteDirection(id).subscribe({
           next: () =>
             this.messageService.add({ severity: 'success', summary: 'Направление удалено' }),
           error: () => this.messageService.add({ severity: 'error', summary: 'Ошибка удаления' }),

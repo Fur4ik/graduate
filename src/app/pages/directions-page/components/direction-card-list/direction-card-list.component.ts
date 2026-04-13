@@ -11,7 +11,7 @@ import { DirectionEntry } from '../../../../shared/models/direction.models';
 })
 export class DirectionCardListComponent {
   directions = input<DirectionEntry[]>([]);
-  selected = output<string>();
-  deleted = output<string>();
+  selected = output<number>();
+  deleted = output<number>();
   edited = output<DirectionEntry>();
 }

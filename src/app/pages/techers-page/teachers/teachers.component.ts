@@ -97,14 +97,14 @@ export class TeachersComponent implements OnInit {
   groupByDirection(
     subjects: TeacherSubject[],
   ): { direction: string; profile: string; items: TeacherSubject[] }[] {
-    const map = new Map<string, TeacherSubject[]>();
+    const map = new Map<number, TeacherSubject[]>();
     for (const s of subjects) {
-      const list = map.get(s.table_name) ?? [];
+      const list = map.get(s.direction_id) ?? [];
       list.push(s);
-      map.set(s.table_name, list);
+      map.set(s.direction_id, list);
     }
-    return Array.from(map.entries()).map(([alias, items]) => {
-      const entry = this.directionsService.getEntry(alias);
+    return Array.from(map.entries()).map(([directionId, items]) => {
+      const entry = this.directionsService.getEntry(directionId);
       return { direction: `${entry.code} ${entry.direction}`, profile: entry.profile, items };
     });
   }

@@ -1,26 +1,19 @@
 const pool = require('./db');
 
 // Кеш загружается один раз при старте сервера
-let cache = []; // [{ id, alias }]
+let validIds = new Set(); // Set<number>
 
 async function init() {
-  const result = await pool.query('SELECT id, alias FROM directions ORDER BY id');
-  cache = result.rows.map((r) => ({
-    id: r.id,
-    alias: r.alias,
-  }));
+  const result = await pool.query('SELECT id FROM directions ORDER BY id');
+  validIds = new Set(result.rows.map((r) => r.id));
 }
 
-function isValidAlias(alias) {
-  return cache.some((t) => t.alias === alias);
+function isValidId(id) {
+  return validIds.has(id);
 }
 
-function getByAlias(alias) {
-  return cache.find((t) => t.alias === alias) ?? null;
+function getIds() {
+  return [...validIds];
 }
 
-function getTables() {
-  return cache;
-}
-
-module.exports = { init, isValidAlias, getByAlias, getTables };
+module.exports = { init, isValidId, getIds };

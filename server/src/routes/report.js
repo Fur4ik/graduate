@@ -2,24 +2,24 @@ const express = require('express');
 const router = express.Router();
 const PDFDocument = require('pdfkit');
 const pool = require('../db');
-const { isValidAlias, getByAlias } = require('../tables');
+const { isValidId } = require('../tables');
 
 const FONT = '/Library/Fonts/Arial Unicode.ttf';
 
 const STATUS_LABELS = { 1: 'Готово', 2: 'В процессе', 3: 'Шаблон' };
 const STATUS_COLORS = { 1: '#16a34a', 2: '#d97706', 3: '#64748b' };
 
-router.get('/report/:alias', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/report/:id', async (req, res) => {
+  const directionId = parseInt(req.params.id);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
 
   try {
     // Направление
     const dirRes = await pool.query(
       `SELECT d.code, d.name, d.profile, dl.name AS degree_level
        FROM directions d JOIN degree_levels dl ON d.degree_level_id = dl.id
-       WHERE d.alias = $1`,
-      [req.params.alias],
+       WHERE d.id = $1`,
+      [directionId],
     );
     const dir = dirRes.rows[0];
 
@@ -33,7 +33,7 @@ router.get('/report/:alias', async (req, res) => {
        LEFT JOIN statuses st ON s.status_id = st.id
        WHERE s.direction_id = $1
        ORDER BY s.id`,
-      [entry.id],
+      [directionId],
     );
     const subjects = subjectsRes.rows;
 

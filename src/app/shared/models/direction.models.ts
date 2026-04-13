@@ -10,7 +10,6 @@ export interface DegreeLevel {
 
 export interface DirectionEntry {
   id: number;
-  alias: string;
   code: string;
   direction: string;
   profile: string;

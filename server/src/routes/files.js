@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const JSZip = require('jszip');
 const pool = require('../db');
-const { isValidAlias, getByAlias } = require('../tables');
+const { isValidId } = require('../tables');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -11,31 +11,31 @@ function dirFolderName(entry) {
   return `${entry.code} ${entry.name}`.replace(/[/\\:*?"<>|]/g, '_').trim();
 }
 
-async function fetchDirectionLabel(alias) {
-  const res = await pool.query('SELECT code, name FROM directions WHERE alias = $1', [alias]);
+async function fetchDirectionLabel(directionId) {
+  const res = await pool.query('SELECT code, name FROM directions WHERE id = $1', [directionId]);
   return res.rows[0] ?? null;
 }
 
 // ─── Скачать все файлы по дисциплине ─────────────────────────────────────────
 
-router.get('/files/:alias/subject/:subjectId/download-all', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/files/:directionId/subject/:subjectId/download-all', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
 
   try {
     const [dirLabel, subjectRow, filesRes] = await Promise.all([
-      fetchDirectionLabel(req.params.alias),
+      fetchDirectionLabel(directionId),
       pool.query('SELECT subject FROM subjects WHERE id = $1 AND direction_id = $2', [
         subjectId,
-        entry.id,
+        directionId,
       ]),
       pool.query('SELECT id, file_name, file_data FROM files WHERE subject_id = $1', [subjectId]),
     ]);
 
     if (filesRes.rows.length === 0) return res.status(404).json({ error: 'No files' });
 
-    const folderName = dirFolderName(dirLabel ?? { code: req.params.alias, name: '' });
+    const folderName = dirFolderName(dirLabel ?? { code: String(directionId), name: '' });
     const subjectName = (subjectRow.rows[0]?.subject ?? String(subjectId)).replace(
       /[/\\:*?"<>|]/g,
       '_',
@@ -61,19 +61,19 @@ router.get('/files/:alias/subject/:subjectId/download-all', async (req, res) => 
 
 // ─── Скачать все файлы по направлению ────────────────────────────────────────
 
-router.get('/files/:alias/download-all', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/files/:directionId/download-all', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
 
   try {
     const [dirLabel, subjectsRes] = await Promise.all([
-      fetchDirectionLabel(req.params.alias),
+      fetchDirectionLabel(directionId),
       pool.query('SELECT id, subject FROM subjects WHERE direction_id = $1 ORDER BY id', [
-        entry.id,
+        directionId,
       ]),
     ]);
 
-    const folderName = dirFolderName(dirLabel ?? { code: req.params.alias, name: '' });
+    const folderName = dirFolderName(dirLabel ?? { code: String(directionId), name: '' });
     const zip = new JSZip();
     const root = zip.folder(folderName);
 
@@ -104,8 +104,9 @@ router.get('/files/:alias/download-all', async (req, res) => {
 
 // ─── CRUD ─────────────────────────────────────────────────────────────────────
 
-router.get('/files/:alias/:subjectId', async (req, res) => {
-  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/files/:directionId/:subjectId', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
 
   try {
@@ -119,8 +120,9 @@ router.get('/files/:alias/:subjectId', async (req, res) => {
   }
 });
 
-router.get('/files/:alias/:subjectId/:fileId/download', async (req, res) => {
-  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/files/:directionId/:subjectId/:fileId/download', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
   const fileId = parseInt(req.params.fileId);
 
@@ -142,8 +144,9 @@ router.get('/files/:alias/:subjectId/:fileId/download', async (req, res) => {
   }
 });
 
-router.post('/files/:alias/:subjectId', upload.single('file'), async (req, res) => {
-  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
+router.post('/files/:directionId/:subjectId', upload.single('file'), async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   if (!req.file) return res.status(400).json({ error: 'File is required' });
   const subjectId = parseInt(req.params.subjectId);
 
@@ -159,8 +162,9 @@ router.post('/files/:alias/:subjectId', upload.single('file'), async (req, res) 
   }
 });
 
-router.delete('/files/:alias/:subjectId/:fileId', async (req, res) => {
-  if (!isValidAlias(req.params.alias)) return res.status(400).json({ error: 'Unknown direction' });
+router.delete('/files/:directionId/:subjectId/:fileId', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const subjectId = parseInt(req.params.subjectId);
   const fileId = parseInt(req.params.fileId);
 

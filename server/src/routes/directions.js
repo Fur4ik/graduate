@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const tables = require('../tables');
-const { generateAlias } = require('../utils/alias');
 
 router.get('/directions', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT d.id, d.alias, d.code, d.name AS direction, d.profile,
+      `SELECT d.id, d.code, d.name AS direction, d.profile,
               dl.id AS degree_level_id, dl.name AS degree_level
        FROM directions d
        JOIN degree_levels dl ON d.degree_level_id = dl.id
@@ -34,21 +33,11 @@ router.post('/directions', async (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  let alias = generateAlias(code, profile);
-
   try {
-    // Если alias уже занят — добавляем числовой суффикс
-    const existing = await pool.query('SELECT alias FROM directions WHERE alias LIKE $1', [
-      `${alias}%`,
-    ]);
-    if (existing.rows.length > 0) {
-      alias = `${alias}_${existing.rows.length + 1}`;
-    }
-
     const result = await pool.query(
-      `INSERT INTO directions (degree_level_id, code, name, profile, alias)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id, alias, code, name AS direction, profile`,
-      [degreeLevelId, code, name, profile, alias],
+      `INSERT INTO directions (degree_level_id, code, name, profile)
+       VALUES ($1, $2, $3, $4) RETURNING id, code, name AS direction, profile`,
+      [degreeLevelId, code, name, profile],
     );
     await tables.init();
     res.status(201).json(result.rows[0]);
@@ -57,41 +46,32 @@ router.post('/directions', async (req, res) => {
   }
 });
 
-router.put('/directions/:alias', async (req, res) => {
-  const { degreeLevelId, code, name, profile, alias: newAlias } = req.body;
+router.put('/directions/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { degreeLevelId, code, name, profile } = req.body;
   try {
     const result = await pool.query(
       `UPDATE directions
        SET degree_level_id = COALESCE($1, degree_level_id),
            code            = COALESCE($2, code),
            name            = COALESCE($3, name),
-           profile         = COALESCE($4, profile),
-           alias           = COALESCE($5, alias)
-       WHERE alias = $6
-       RETURNING id, alias, code, name AS direction, profile`,
-      [
-        degreeLevelId || null,
-        code || null,
-        name || null,
-        profile || null,
-        newAlias || null,
-        req.params.alias,
-      ],
+           profile         = COALESCE($4, profile)
+       WHERE id = $5
+       RETURNING id, code, name AS direction, profile`,
+      [degreeLevelId || null, code || null, name || null, profile || null, id],
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     await tables.init();
     res.json(result.rows[0]);
   } catch (err) {
-    if (err.code === '23505') return res.status(409).json({ error: 'Alias already exists' });
     res.status(500).json({ error: err.message });
   }
 });
 
-router.delete('/directions/:alias', async (req, res) => {
+router.delete('/directions/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
   try {
-    const result = await pool.query('DELETE FROM directions WHERE alias = $1 RETURNING id', [
-      req.params.alias,
-    ]);
+    const result = await pool.query('DELETE FROM directions WHERE id = $1 RETURNING id', [id]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     await tables.init();
     res.json({ deleted: result.rows[0].id });

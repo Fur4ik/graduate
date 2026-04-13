@@ -10,26 +10,26 @@ import { API } from '../constants/core.constants';
 export class SubjectsService {
   private http = inject(HttpClient);
 
-  getAll(alias: string): Observable<Subject[]> {
-    return this.http.get<Subject[]>(`${API}/subjects/${alias}`);
+  getAll(directionId: number): Observable<Subject[]> {
+    return this.http.get<Subject[]>(`${API}/subjects/${directionId}`);
   }
 
   create(
-    alias: string,
+    directionId: number,
     data: { subject: string; teacherId?: number; statusId?: number },
   ): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(`${API}/subjects/${alias}`, data);
+    return this.http.post<{ id: number }>(`${API}/subjects/${directionId}`, data);
   }
 
   update(
-    alias: string,
+    directionId: number,
     id: number,
     data: Partial<{ subject: string; teacherId: number; statusId: number }>,
   ): Observable<Subject> {
-    return this.http.put<Subject>(`${API}/subjects/${alias}/${id}`, data);
+    return this.http.put<Subject>(`${API}/subjects/${directionId}/${id}`, data);
   }
 
-  delete(alias: string, id: number): Observable<{ deleted: number }> {
-    return this.http.delete<{ deleted: number }>(`${API}/subjects/${alias}/${id}`);
+  delete(directionId: number, id: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${API}/subjects/${directionId}/${id}`);
   }
 }

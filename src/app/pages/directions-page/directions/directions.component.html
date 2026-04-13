@@ -32,7 +32,7 @@
 }
 
 <p-dialog
-  [header]="editingAlias() ? 'Редактировать направление' : 'Новое направление'"
+  [header]="editingDirectionId() ? 'Редактировать направление' : 'Новое направление'"
   [visible]="showDirectionDialog()"
   (visibleChange)="showDirectionDialog.set($event)"
   (onHide)="onDialogHide()"
@@ -83,7 +83,7 @@
         (onClick)="showDirectionDialog.set(false)"
       />
       <p-button
-        [label]="editingAlias() ? 'Сохранить' : 'Добавить'"
+        [label]="editingDirectionId() ? 'Сохранить' : 'Добавить'"
         icon="pi pi-check"
         (onClick)="saveDirection()"
       />

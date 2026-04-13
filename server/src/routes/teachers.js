@@ -15,11 +15,11 @@ router.get('/teachers/:id/subjects', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
     const result = await pool.query(
-      `SELECT d.alias AS table_name, s.id, s.subject
+      `SELECT d.id AS direction_id, s.id, s.subject
        FROM subjects s
        JOIN directions d ON s.direction_id = d.id
        WHERE s.teacher_id = $1
-       ORDER BY d.alias, s.id`,
+       ORDER BY d.id, s.id`,
       [id],
     );
     res.json(result.rows);

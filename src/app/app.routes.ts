@@ -6,6 +6,6 @@ import { TeachersComponent } from './pages/techers-page/teachers/teachers.compon
 export const routes: Routes = [
   { path: '', redirectTo: 'direction', pathMatch: 'full' },
   { path: 'direction', component: DirectionsComponent },
-  { path: 'direction/:alias', component: DirectionDetailComponent },
+  { path: 'direction/:id', component: DirectionDetailComponent },
   { path: 'teachers', component: TeachersComponent },
 ];

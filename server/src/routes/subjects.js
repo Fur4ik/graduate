@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { getByAlias } = require('../tables');
+const { isValidId } = require('../tables');
 
-router.get('/subjects/:alias', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/subjects/:directionId', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
 
   try {
     const result = await pool.query(
@@ -17,7 +17,7 @@ router.get('/subjects/:alias', async (req, res) => {
        LEFT JOIN statuses st ON s.status_id = st.id
        WHERE s.direction_id = $1
        ORDER BY s.id`,
-      [entry.id],
+      [directionId],
     );
     res.json(result.rows);
   } catch (err) {
@@ -25,9 +25,9 @@ router.get('/subjects/:alias', async (req, res) => {
   }
 });
 
-router.get('/subjects/:alias/:id', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.get('/subjects/:directionId/:id', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const id = parseInt(req.params.id);
 
   try {
@@ -39,7 +39,7 @@ router.get('/subjects/:alias/:id', async (req, res) => {
        LEFT JOIN teachers p ON s.teacher_id = p.id
        LEFT JOIN statuses st ON s.status_id = st.id
        WHERE s.id = $1 AND s.direction_id = $2`,
-      [id, entry.id],
+      [id, directionId],
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     res.json(result.rows[0]);
@@ -48,9 +48,9 @@ router.get('/subjects/:alias/:id', async (req, res) => {
   }
 });
 
-router.post('/subjects/:alias', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.post('/subjects/:directionId', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
 
   const { subject, teacherId, statusId } = req.body;
   if (!subject) return res.status(400).json({ error: 'subject is required' });
@@ -59,7 +59,7 @@ router.post('/subjects/:alias', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO subjects (direction_id, subject, teacher_id, status_id)
        VALUES ($1, $2, $3, $4) RETURNING id`,
-      [entry.id, subject, teacherId || null, statusId || null],
+      [directionId, subject, teacherId || null, statusId || null],
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -67,9 +67,9 @@ router.post('/subjects/:alias', async (req, res) => {
   }
 });
 
-router.put('/subjects/:alias/:id', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.put('/subjects/:directionId/:id', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const id = parseInt(req.params.id);
 
   const { subject, teacherId, statusId } = req.body;
@@ -81,7 +81,7 @@ router.put('/subjects/:alias/:id', async (req, res) => {
            status_id  = COALESCE($3, status_id)
        WHERE id = $4 AND direction_id = $5
        RETURNING *`,
-      [subject || null, teacherId || null, statusId || null, id, entry.id],
+      [subject || null, teacherId || null, statusId || null, id, directionId],
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     res.json(result.rows[0]);
@@ -90,15 +90,15 @@ router.put('/subjects/:alias/:id', async (req, res) => {
   }
 });
 
-router.delete('/subjects/:alias/:id', async (req, res) => {
-  const entry = getByAlias(req.params.alias);
-  if (!entry) return res.status(400).json({ error: 'Unknown direction' });
+router.delete('/subjects/:directionId/:id', async (req, res) => {
+  const directionId = parseInt(req.params.directionId);
+  if (!isValidId(directionId)) return res.status(400).json({ error: 'Unknown direction' });
   const id = parseInt(req.params.id);
 
   try {
     const result = await pool.query(
       `DELETE FROM subjects WHERE id = $1 AND direction_id = $2 RETURNING id`,
-      [id, entry.id],
+      [id, directionId],
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     res.json({ deleted: result.rows[0].id });

@@ -5,7 +5,7 @@ export interface Teacher {
 }
 
 export interface TeacherSubject {
-  table_name: string;
+  direction_id: number;
   id: number;
   subject: string;
 }
