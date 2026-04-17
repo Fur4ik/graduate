@@ -1,0 +1,55 @@
+-- Уровни подготовки
+CREATE TABLE IF NOT EXISTS degree_levels (
+  id   SERIAL PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE  -- 'Бакалавриат', 'Магистратура'
+);
+
+INSERT INTO degree_levels (name) VALUES
+  ('Бакалавриат'),
+  ('Магистратура')
+ON CONFLICT (name) DO NOTHING;
+
+
+-- Направления подготовки
+CREATE TABLE IF NOT EXISTS directions (
+  id               SERIAL PRIMARY KEY,
+  degree_level_id  INTEGER NOT NULL REFERENCES degree_levels (id),
+  code             TEXT    NOT NULL,  -- '09.03.01'
+  name             TEXT    NOT NULL,  -- 'Информатика и вычислительная техника'
+  profile          TEXT    NOT NULL,  -- 'Разработка программных комплексов...'
+  alias            TEXT    NOT NULL UNIQUE  -- '090301_rpkvrtdp'
+);
+
+INSERT INTO directions (degree_level_id, code, name, profile, alias) VALUES
+  (1, '09.03.01', 'Информатика и вычислительная техника',          'Разработка программных комплексов в рамках цифровой трансформации деятельности предприятий', '090301_rpkvrtdp'),
+  (1, '09.03.02', 'Информационные системы и технологии',           'Цифровые системы управления в промышленности и социально-экономической сфере',              '090302_is'),
+  (1, '09.03.03', 'Прикладная информатика',                        'Математическое и компьютерное моделирование процессов и систем',                            '090303_mkmps'),
+  (1, '09.03.04', 'Программная инженерия',                         'Системный анализ и проектирование программных комплексов',                                  '090304_saippk'),
+  (2, '09.04.01', 'Информатика и вычислительная техника',          'Управление программными продуктами и проектами',                                            '090401_uppip'),
+  (2, '09.04.01', 'Информатика и вычислительная техника',          'Компьютерное моделирование сложных технических систем',                                     '090401_kmsts'),
+  (2, '09.04.01', 'Информатика и вычислительная техника',          'Искусственный интеллект и большие данные',                                                  '090401_iibd'),
+  (2, '09.04.01', 'Информатика и вычислительная техника',          'Интегрированное управление цифровыми предприятиями и умными производствами',                '090401_utspp'),
+  (2, '09.04.01', 'Информатика и вычислительная техника',          'Инженерная геометрия и компьютерная графика',                                               '090401_igikg'),
+  (2, '09.04.01', 'Информатика и вычислительная техника',          'Интеллектуальный анализ данных',                                                            '090401_is'),
+  (2, '09.04.04', 'Программная инженерия',                         'Технологии разработки интеллектуальных систем и программных комплексов',                    '090404_trispk')
+ON CONFLICT (alias) DO NOTHING;
+
+
+-- Дисциплины
+CREATE TABLE IF NOT EXISTS subjects (
+  id           SERIAL PRIMARY KEY,
+  direction_id INTEGER NOT NULL REFERENCES directions (id) ON DELETE CASCADE,
+  subject      TEXT    NOT NULL,
+  teacher_id   INTEGER REFERENCES teachers (id) ON DELETE SET NULL,
+  status_id    INTEGER REFERENCES statuses (id) ON DELETE SET NULL
+);
+
+
+-- Файлы
+CREATE TABLE IF NOT EXISTS files (
+  id         SERIAL PRIMARY KEY,
+  subject_id INTEGER NOT NULL REFERENCES subjects (id) ON DELETE CASCADE,
+  file_name  TEXT    NOT NULL,
+  file_type  TEXT,
+  file_data  BYTEA   NOT NULL
+);

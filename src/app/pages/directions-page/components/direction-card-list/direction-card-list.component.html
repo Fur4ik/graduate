@@ -1,0 +1,17 @@
+@if (directions().length === 0) {
+  <div class="empty-state">
+    <i class="pi pi-inbox"></i>
+    <span>Нет направлений</span>
+  </div>
+} @else {
+  <div class="directions-grid">
+    @for (direction of directions(); track direction) {
+      <app-direction-card
+        [direction]="direction"
+        (selected)="selected.emit($event)"
+        (deleted)="deleted.emit($event)"
+        (edited)="edited.emit($event)"
+      />
+    }
+  </div>
+}

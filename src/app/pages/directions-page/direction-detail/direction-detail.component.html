@@ -1,0 +1,262 @@
+<p-toast />
+<p-confirmDialog [style]="{ width: '420px' }" [dismissableMask]="true" />
+
+<div class="detail-page">
+  <div class="detail-header">
+    <p-button icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="back()" />
+    <div class="detail-title">
+      <span class="detail-direction">{{ entry.code }} {{ entry.direction }}</span>
+      <span class="detail-profile">{{ entry.profile }}</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters">
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input
+          pInputText
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Дисциплина / преподаватель"
+          class="search-input"
+        />
+      </p-iconfield>
+      <p-select
+        [options]="teachers()"
+        [ngModel]="filterTeacherId()"
+        (ngModelChange)="filterTeacherId.set($event)"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Преподаватель"
+        [showClear]="true"
+        appendTo="body"
+      />
+      <p-select
+        [options]="statuses"
+        [ngModel]="filterStatusId()"
+        (ngModelChange)="filterStatusId.set($event)"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Статус"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+    <div class="toolbar-actions">
+      <a [href]="reportUrl()" download>
+        <p-button label="Отчёт заполненности" icon="pi pi-file-pdf" severity="secondary" />
+      </a>
+      <a [href]="downloadAllDirectionUrl()" download>
+        <p-button label="Экспортировать файлы" icon="pi pi-download" severity="secondary" />
+      </a>
+      <p-button label="Добавить дисциплину" icon="pi pi-plus" (onClick)="openAddDialog()" />
+    </div>
+  </div>
+
+  @if (loadingSubjects()) {
+    <div class="spinner-wrap">
+      <p-progressSpinner />
+    </div>
+  } @else {
+    <p-table [value]="filteredSubjects()" styleClass="p-datatable-striped" [rowHover]="true">
+      <ng-template #header>
+        <tr>
+          <th style="width: 3rem"></th>
+          <th>Дисциплина</th>
+          <th>Преподаватель</th>
+          <th>Статус</th>
+          <th style="width: 90px"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-subject>
+        <tr>
+          <td>
+            <p-button
+              [icon]="isExpanded(subject.id) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [text]="true"
+              severity="secondary"
+              (onClick)="toggleRow(subject)"
+            />
+          </td>
+          <td>{{ subject.subject }}</td>
+          <td>
+            @if (subject.teacher_name) {
+              <div class="teacher-cell">
+                <div class="teacher-name">{{ subject.teacher_name }}</div>
+                @if (subject.teacher_email) {
+                  <div class="teacher-email">{{ subject.teacher_email }}</div>
+                }
+              </div>
+            } @else {
+              <span class="no-value">—</span>
+            }
+          </td>
+          <td class="status-cell">
+            @if (subject.status_name) {
+              <p-tag
+                [value]="subject.status_name"
+                [severity]="getStatusSeverity(subject.status_id)"
+              />
+            }
+          </td>
+          <td>
+            <div class="row-actions">
+              <p-button
+                icon="pi pi-pencil"
+                severity="secondary"
+                [text]="true"
+                (onClick)="openEditDialog(subject)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                (onClick)="deleteSubject(subject)"
+              />
+            </div>
+          </td>
+        </tr>
+
+        @if (isExpanded(subject.id)) {
+          <tr>
+            <td colspan="5">
+              <div class="files-panel">
+                <div class="files-header">
+                  <span>Файлы</span>
+                  <div class="files-header-actions">
+                    @if (getFiles(subject.id).length > 0) {
+                      <a [href]="downloadAllSubjectUrl(subject.id)" download>
+                        <p-button
+                          label="Скачать файлы"
+                          icon="pi pi-download"
+                          size="small"
+                          severity="secondary"
+                        />
+                      </a>
+                    }
+                    <p-button
+                      label="Загрузить файл"
+                      icon="pi pi-upload"
+                      size="small"
+                      severity="secondary"
+                      (onClick)="fileInput.click()"
+                    />
+                  </div>
+                  <input
+                    #fileInput
+                    type="file"
+                    class="file-upload-input"
+                    (change)="onFileUpload($event, subject.id)"
+                  />
+                </div>
+
+                @if (getFiles(subject.id).length === 0) {
+                  <p class="files-empty">Нет файлов</p>
+                } @else {
+                  <div class="files-list">
+                    @for (file of getFiles(subject.id); track file.id) {
+                      <div class="file-row">
+                        <div class="file-info">
+                          <i class="pi pi-file"></i>
+                          <span>{{ file.name }}</span>
+                        </div>
+                        <div class="file-actions">
+                          <a [href]="downloadUrl(subject.id, file.id)" target="_blank">
+                            <p-button
+                              icon="pi pi-download"
+                              [text]="true"
+                              size="small"
+                              severity="secondary"
+                            />
+                          </a>
+                          <p-button
+                            icon="pi pi-trash"
+                            [text]="true"
+                            size="small"
+                            severity="danger"
+                            (onClick)="deleteFile(subject.id, file.id)"
+                          />
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 24px">Дисциплины не найдены</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</div>
+
+<p-dialog
+  [header]="editingId() ? 'Редактировать дисциплину' : 'Новая дисциплина'"
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
+  (onHide)="onDialogHide()"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [dismissableMask]="true"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label>Название *</label>
+      <input
+        pInputText
+        [(ngModel)]="dialogSubject.subject"
+        placeholder="Введите название дисциплины"
+      />
+    </div>
+
+    <div class="form-field">
+      <label>Преподаватель</label>
+      <p-select
+        [options]="teachers()"
+        [(ngModel)]="dialogSubject.teacherId"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Выберите преподавателя"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="form-field">
+      <label>Статус</label>
+      <p-select
+        [options]="statuses"
+        [(ngModel)]="dialogSubject.statusId"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Выберите статус"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Отмена"
+        severity="secondary"
+        [text]="true"
+        (onClick)="showDialog.set(false)"
+      />
+      <p-button
+        [label]="editingId() ? 'Сохранить' : 'Добавить'"
+        icon="pi pi-check"
+        (onClick)="saveSubject()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,126 @@
+<p-toast />
+<p-confirmDialog [style]="{ width: '420px' }" [dismissableMask]="true" />
+
+@if (loading()) {
+  <div class="spinner-wrap">
+    <p-progressSpinner />
+  </div>
+} @else {
+  <div class="directions-page">
+    <div class="page-toolbar">
+      <div class="toolbar-actions">
+        <p-button
+          label="Уровни образования"
+          icon="pi pi-graduation-cap"
+          severity="secondary"
+          (onClick)="showDegreeLevelDialog.set(true)"
+        />
+        <p-button label="Добавить направление" icon="pi pi-plus" (onClick)="openAddDialog()" />
+      </div>
+    </div>
+
+    @for (entry of grouped() | keyvalue: keepOrder; track entry.key) {
+      <h2>{{ entry.key }}</h2>
+      <app-direction-card-list
+        [directions]="entry.value"
+        (selected)="open($event)"
+        (deleted)="deleteDirection($event)"
+        (edited)="openEditDialog($event)"
+      />
+    }
+  </div>
+}
+
+<p-dialog
+  [header]="editingDirectionId() ? 'Редактировать направление' : 'Новое направление'"
+  [visible]="showDirectionDialog()"
+  (visibleChange)="showDirectionDialog.set($event)"
+  (onHide)="onDialogHide()"
+  [modal]="true"
+  [style]="{ width: '520px' }"
+  [dismissableMask]="true"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label>Уровень образования *</label>
+      <p-select
+        [options]="degreeLevels()"
+        [(ngModel)]="directionForm.degreeLevelId"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Выберите уровень"
+        appendTo="body"
+      />
+    </div>
+    <div class="form-field">
+      <label>Код *</label>
+      <input pInputText [(ngModel)]="directionForm.code" placeholder="09.03.01" />
+    </div>
+    <div class="form-field">
+      <label>Направление *</label>
+      <input
+        pInputText
+        [(ngModel)]="directionForm.name"
+        placeholder="Информатика и вычислительная техника"
+      />
+    </div>
+    <div class="form-field">
+      <label>Профиль *</label>
+      <input
+        pInputText
+        [(ngModel)]="directionForm.profile"
+        placeholder="Разработка программных комплексов..."
+      />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Отмена"
+        severity="secondary"
+        [text]="true"
+        (onClick)="showDirectionDialog.set(false)"
+      />
+      <p-button
+        [label]="editingDirectionId() ? 'Сохранить' : 'Добавить'"
+        icon="pi pi-check"
+        (onClick)="saveDirection()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Уровни образования"
+  [visible]="showDegreeLevelDialog()"
+  (visibleChange)="showDegreeLevelDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [dismissableMask]="true"
+>
+  <div class="degree-level-list">
+    @for (level of degreeLevels(); track level.id) {
+      <div class="degree-level-row">
+        <span>{{ level.name }}</span>
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [text]="true"
+          size="small"
+          (onClick)="deleteDegreeLevel(level)"
+        />
+      </div>
+    }
+  </div>
+
+  <div class="degree-level-add">
+    <input
+      pInputText
+      [(ngModel)]="newDegreeLevelName"
+      placeholder="Новый уровень"
+      class="degree-level-input"
+    />
+    <p-button label="Добавить" icon="pi pi-plus" size="small" (onClick)="saveDegreeLevel()" />
+  </div>
+</p-dialog>
